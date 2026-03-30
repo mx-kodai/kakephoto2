@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: #710b26;
+  --color-brand-light: #f7f7f7;
+  --font-mincho: 'Zen Old Mincho', serif;
+}
+
+body {
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  color: #333;
+  background: #fff;
+  overflow-x: hidden;
+}
+
+/* Vertical text for Japanese */
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
