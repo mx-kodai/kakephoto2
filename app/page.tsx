@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import Lenis from "lenis";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,16 +36,6 @@ function ScaledWrapper({ children, spChildren }: { children: React.ReactNode; sp
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Lenis smooth scroll — eliminates jitter for JS-driven sticky
-  useEffect(() => {
-    const lenis = new Lenis({ syncTouch: true });
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-    return () => lenis.destroy();
-  }, []);
 
   if (isSp) {
     return (
@@ -224,9 +213,9 @@ function SpPage() {
           ].map((msg, i) => (
             <div key={i} className="mb-[40px]">
               <div className="relative w-full h-[220px] overflow-hidden mb-[20px]">
-                <Image src={msg.img} alt={msg.alt} fill className="object-cover" />
+                <Image src={msg.img} alt={msg.alt} fill className={i === 2 ? "object-cover scale-[1.15] object-[center_35%]" : "object-cover"} />
               </div>
-              <div className="text-[#710b26] text-[13px] tracking-[2px] leading-[28px]">
+              <div className="text-[#710b26] text-[13px] tracking-[2px] leading-[28px] text-center">
                 {msg.lines.map((line, j) => <p key={j}>{line}</p>)}
               </div>
             </div>
@@ -247,7 +236,7 @@ function SpPage() {
             <Image src="/images/order-photo.jpg" alt="特注オーダーメイド" fill className="object-cover" />
           </div>
           <div className="p-[16px]">
-            <div className="flex items-baseline gap-2 mb-1">
+            <div className="mb-1">
               <h3 className="text-[18px] tracking-[4px]">特注オーダーメイド</h3>
               <span className="text-[12px] tracking-[2px] text-[#323232]">Photo size FREE</span>
             </div>
@@ -270,43 +259,43 @@ function SpPage() {
             <Image src="/images/order-photo-miyabi.jpg" alt="雅コース" fill className="object-cover" />
           </div>
           <div className="p-[16px]">
-            <div className="flex items-baseline gap-2 mb-1">
+            <div className="mb-1">
               <h3 className="text-[18px] tracking-[4px]">雅コース</h3>
               <span className="text-[12px] tracking-[2px] text-[#323232]">Photo size A4</span>
             </div>
-            <p className="text-[12px] tracking-[1.5px] text-black leading-[22px] mb-3">
+            <div className="text-[12px] tracking-[2px] text-black leading-[24px] mb-2">
+              <p>縦：100-120cm / 横：23cm~</p>
+            </div>
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-[16px] tracking-[2px] text-black">46,000円</span>
+              <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
+            </div>
+            <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
               お写真をA4サイズに拡大印刷して仕上げます。あらかじめ厳選された裂地（きれじ）や形状のラインナップから、お好みの組み合わせをお選びいただけます。
             </p>
-            <div className="flex items-baseline justify-between">
-              <p className="text-[12px] text-black tracking-[2px]">縦：100-120cm 横23cm~</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-[16px] text-black">46,000円</span>
-                <span className="text-[10px] text-black">(税込/送料込)</span>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* 極コース */}
-        <div className="bg-[#FFFFFB] text-[#710b26] rounded-sm overflow-hidden mb-[30px]">
+        <div className="bg-[#FFFFFB] text-[#710b26] rounded-sm overflow-hidden mb-[90px]">
           <div className="relative w-full h-[200px]">
             <Image src="/images/order-photo-kiwami.jpg" alt="極コース" fill className="object-cover" />
           </div>
           <div className="p-[16px]">
-            <div className="flex items-baseline gap-2 mb-1">
+            <div className="mb-1">
               <h3 className="text-[18px] tracking-[4px]">極コース</h3>
               <span className="text-[12px] tracking-[2px] text-[#323232]">Photo size A3</span>
             </div>
-            <p className="text-[12px] tracking-[1.5px] text-black leading-[22px] mb-3">
+            <div className="text-[12px] tracking-[2px] text-black leading-[24px] mb-2">
+              <p>縦：110-130cm / 横：30cm~</p>
+            </div>
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-[16px] tracking-[2px] text-black">77,000円</span>
+              <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
+            </div>
+            <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
               お写真を、存在感あふれるA3サイズに拡大印刷いたします。ダイナミックな大きさでありながら、細部まで鮮明に再現されます。
             </p>
-            <div className="flex items-baseline justify-between">
-              <p className="text-[12px] text-black tracking-[2px]">縦：110-130cm 横：30cm~</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-[16px] text-black">77,000円</span>
-                <span className="text-[10px] text-black">(税込/送料込)</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -366,7 +355,7 @@ function SpPage() {
             <Image src="/images/instagram-icon.svg" alt="Instagram" width={14} height={14} />
             <span className="text-[12px] tracking-[1px]">Instagram</span>
           </div>
-          <p className="text-[10px] tracking-[0.8px] mb-[8px]">プライバシーポリシー | 特定商取引法</p>
+          <p className="text-[10px] tracking-[0.8px] mb-[8px]"><a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">キャンセルポリシー</a></p>
           <p className="text-[9px] tracking-[0.8px]">©︎KAKE PHOTO All Rights Reserved.</p>
         </footer>
       </section>
@@ -682,7 +671,7 @@ export default function Home() {
 
             {/* プライバシーポリシー */}
             <p className="absolute right-0 top-[161px] text-[14px] tracking-[1.4px]">
-              プライバシーポリシー | 特定商取引法
+              <a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">キャンセルポリシー</a>
             </p>
           </footer>
         </section>
