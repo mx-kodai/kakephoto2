@@ -87,24 +87,30 @@ function StickyMessageSection() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
+  // JS-driven sticky: translate the viewport to follow scroll
+  const stickyY = useTransform(scrollYProgress, (v) => v * panelH * 3);
+
   const opacity1 = useTransform(scrollYProgress, [0, 0.27, 0.33], [1, 1, 0]);
-  const y1 = useTransform(scrollYProgress, [0, 0.27, 0.33], [0, 0, -80]);
+  const content1Y = useTransform(scrollYProgress, [0, 0.27, 0.33], [0, 0, -80]);
 
   const opacity2 = useTransform(scrollYProgress, [0.27, 0.33, 0.6, 0.66], [0, 1, 1, 0]);
-  const y2 = useTransform(scrollYProgress, [0.27, 0.33, 0.6, 0.66], [80, 0, 0, -80]);
+  const content2Y = useTransform(scrollYProgress, [0.27, 0.33, 0.6, 0.66], [80, 0, 0, -80]);
 
   const opacity3 = useTransform(scrollYProgress, [0.6, 0.66, 1], [0, 1, 1]);
-  const y3 = useTransform(scrollYProgress, [0.6, 0.66, 1], [80, 0, 0]);
+  const content3Y = useTransform(scrollYProgress, [0.6, 0.66, 1], [80, 0, 0]);
 
   return (
     <section ref={sectionRef} className="relative w-[1920px]" style={{ height: panelH * 4 }}>
-      <div className="sticky top-0 w-[1920px] overflow-hidden" style={{ height: panelH }}>
+      <motion.div
+        className="absolute top-0 left-0 w-[1920px] overflow-hidden"
+        style={{ height: panelH, y: stickyY }}
+      >
         <div className="absolute inset-0 bg-white" />
         <MessageBg />
         <h2 className="absolute z-20 left-[99px] top-[120px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
 
         {/* Panel 1 */}
-        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity1, y: y1 }}>
+        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity1, y: content1Y }}>
           <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo1.jpg" alt="掛け軸の裂地" fill className="object-cover" />
           </div>
@@ -121,7 +127,7 @@ function StickyMessageSection() {
         </motion.div>
 
         {/* Panel 2 */}
-        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity2, y: y2 }}>
+        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity2, y: content2Y }}>
           <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo2.jpg" alt="掛け軸のある空間" fill className="object-cover" />
           </div>
@@ -138,7 +144,7 @@ function StickyMessageSection() {
         </motion.div>
 
         {/* Panel 3 */}
-        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity3, y: y3 }}>
+        <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity3, y: content3Y }}>
           <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo3.jpg" alt="掛け軸と家族の思い出" fill className="object-cover" />
           </div>
@@ -154,7 +160,7 @@ function StickyMessageSection() {
             <p>確かな形に託して。</p>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -474,7 +480,7 @@ export default function Home() {
           </h2>
 
           {/* 縦書き — Figma: 右列x=967 左列x=923 y=340 gap=16px */}
-          <div className="absolute top-[340px] left-[923px] flex gap-[16px]">
+          <div className="absolute top-[500px] left-[923px] flex gap-[16px]">
             {/* 右列: あなたの写真を、 */}
             <div className="flex flex-col gap-[4px] text-[28px] text-white" style={{ order: 2 }}>
               {"あなたの写真を".split("").map((c, i) => (
@@ -491,7 +497,7 @@ export default function Home() {
           </div>
 
           {/* 説明文 — Figma: x=655 y=821 w=613 */}
-          <div className="absolute top-[821px] left-[655px] w-[613px] text-center text-[22px] tracking-[4.4px] leading-[50px]">
+          <div className="absolute top-[981px] left-[655px] w-[613px] text-center text-[22px] tracking-[4.4px] leading-[50px]">
             <p>私たちの掛け軸は、既製品ではありません。</p>
             <p>&nbsp;</p>
             <p>すべてが、その写真、その空間のための</p>
@@ -540,12 +546,12 @@ export default function Home() {
         {/* ===== Order + Footer — Figma: bg 1920x3143 ===== */}
         <section className="relative w-[1920px] h-[3143px] bg-[#710b26] text-white">
           <h2 className="absolute z-10 left-[99px] top-[118px] text-[40px] tracking-[16px]">Order</h2>
-          <p className="absolute z-10 left-[523px] top-[213px] w-[875px] text-[18px] tracking-[3.6px] leading-[50px] text-center" style={{ fontFamily: 'Zen Old Mincho' }}>
+          <p className="absolute z-10 left-[523px] top-[308px] w-[875px] text-[18px] tracking-[3.6px] leading-[50px] text-center" style={{ fontFamily: 'Zen Old Mincho' }}>
             掛け軸は、　オーダーにてお作りしています。<br />写真の内容だけでなく、　裂地の色や質感、　全体の配色バランスまで。<br />空間や飾る場所を想像しながら、<br />一緒に仕立てていく時間も　大切にしています。
           </p>
 
           {/* 特注オーダーメイド — Figma: x=99 y=484 w=1721 h=557 */}
-          <div className="absolute left-[99px] top-[484px] w-[1721px] h-[557px] bg-[#FFFFFB] text-[#710b26] rounded-sm overflow-hidden">
+          <div className="absolute left-[99px] top-[579px] w-[1721px] h-[557px] bg-[#FFFFFB] text-[#710b26] rounded-sm overflow-hidden">
             {/* 画像 — Figma: x=54 y=61 w=650 h=430 */}
             <div className="absolute left-[54px] top-[61px] w-[650px] h-[430px] overflow-hidden">
               <Image
@@ -584,7 +590,7 @@ export default function Home() {
             <div className="absolute left-[54px] top-[125px] w-[382px] h-[252px] overflow-hidden">
               <Image src="/images/order-photo-miyabi.jpg" alt="雅コース" fill className="object-cover" />
             </div>
-            <p className="absolute left-[475px] top-[119px] w-[326px] text-[16px] tracking-[4.8px] text-black leading-[30px]">
+            <p className="absolute left-[475px] top-[119px] w-[326px] text-[14px] tracking-[4.8px] text-black leading-[26px]">
               お写真をA4サイズに拡大印刷して仕上げます。あらかじめ厳選された裂地（きれじ）や形状のラインナップから、お好みの組み合わせをお選びいただき、理想の完成イメージを形にしていきます。
             </p>
             <div className="absolute left-[54px] top-[428px] text-[14px] tracking-[5.6px] text-black leading-[30px]">
@@ -603,7 +609,7 @@ export default function Home() {
             <div className="absolute left-[913px] top-[125px] w-[382px] h-[252px] overflow-hidden">
               <Image src="/images/order-photo-kiwami.jpg" alt="極コース" fill className="object-cover" />
             </div>
-            <p className="absolute left-[1334px] top-[119px] w-[326px] text-[16px] tracking-[4.8px] text-black leading-[30px]">
+            <p className="absolute left-[1334px] top-[119px] w-[326px] text-[14px] tracking-[4.8px] text-black leading-[26px]">
               お写真を、存在感あふれるA3サイズに拡大印刷いたします。<br />ダイナミックな大きさでありながら、細部まで鮮明に再現されるため、大切な思い出がより一層の臨場感とともに蘇ります。お部屋の主役となる十分なサイズ感は、ご自宅用はもちろん、記念品やお祝いの品としても大変喜ばれる仕上がりです。
             </p>
             <div className="absolute left-[918px] top-[417px] text-[14px] tracking-[5.6px] text-black leading-[30px]">
