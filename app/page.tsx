@@ -1,7 +1,23 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
+
+function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.8, ease: "easeOut", delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function ScaledWrapper({ children, spChildren }: { children: React.ReactNode; spChildren: React.ReactNode }) {
   const [scale, setScale] = useState(1);
@@ -85,14 +101,14 @@ function StickyMessageSection() {
       <div className="sticky top-0 w-[1920px] overflow-hidden" style={{ height: panelH }}>
         <div className="absolute inset-0 bg-white" />
         <MessageBg />
-        <h2 className="absolute z-20 left-[99px] top-[206px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
+        <h2 className="absolute z-20 left-[99px] top-[120px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
 
         {/* Panel 1 */}
         <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity1, y: y1 }}>
-          <div className="absolute left-0 top-[406px] w-[960px] h-[648px] overflow-hidden">
+          <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo1.jpg" alt="掛け軸の裂地" fill className="object-cover" />
           </div>
-          <div className="absolute left-[1110px] top-[538px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
+          <div className="absolute left-[1110px] top-[340px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
             <p>「伝統を継ぎ、未来を綴る」</p>
             <p>文化財修復という、歴史を守る現場で</p>
             <p>磨かれた確かな技術。</p>
@@ -106,10 +122,10 @@ function StickyMessageSection() {
 
         {/* Panel 2 */}
         <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity2, y: y2 }}>
-          <div className="absolute left-0 top-[406px] w-[960px] h-[648px] overflow-hidden">
+          <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo2.jpg" alt="掛け軸のある空間" fill className="object-cover" />
           </div>
-          <div className="absolute left-[1110px] top-[538px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
+          <div className="absolute left-[1110px] top-[340px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
             <p>「敷居をまたぎ、日常に馴染む」</p>
             <p>「掛軸は少し格式が高い」というこれまでの</p>
             <p>常識を、私たちは軽やかにひっくり返します。</p>
@@ -123,10 +139,10 @@ function StickyMessageSection() {
 
         {/* Panel 3 */}
         <motion.div className="absolute inset-0 z-10" style={{ opacity: opacity3, y: y3 }}>
-          <div className="absolute left-0 top-[406px] w-[960px] h-[648px] overflow-hidden">
+          <div className="absolute left-0 top-[260px] w-[960px] h-[648px] overflow-hidden">
             <Image src="/images/message-photo3.jpg" alt="掛け軸と家族の思い出" fill className="object-cover" />
           </div>
-          <div className="absolute left-[1110px] top-[538px] w-[534px] h-[434px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
+          <div className="absolute left-[1110px] top-[340px] w-[534px] h-[434px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
             <p>「記憶を飾り、心を贈る」</p>
             <p>家族の笑顔や、心に留めておきたい</p>
             <p>大切な瞬間。</p>
@@ -164,52 +180,63 @@ function SpPage() {
       </section>
 
       {/* ===== Concept ===== */}
-      <section className="relative w-[375px] bg-[#710b26] text-white px-[20px] py-[60px]">
-        <h2 className="text-[24px] tracking-[8px] mb-[60px] text-center">Concept</h2>
-        <div className="flex justify-center mb-[30px]">
-          <div className="flex gap-[12px]">
-            <div className="flex flex-col gap-[2px] text-[20px]" style={{ order: 2 }}>
-              {"あなたの写真を".split("").map((c, i) => (
-                <span key={i} className="w-[20px] h-[30px] flex items-center justify-center">{c}</span>
-              ))}
-              <span className="w-[20px] h-[10px] flex items-center justify-center rotate-180">、</span>
-            </div>
-            <div className="flex flex-col gap-[2px] text-[20px]" style={{ order: 1 }}>
-              {"日本の美で包む".split("").map((c, i) => (
-                <span key={i} className="w-[20px] h-[30px] flex items-center justify-center">{c}</span>
-              ))}
+      <section className="relative w-[375px] bg-[#710b26] text-white py-[60px] pb-[160px] overflow-hidden">
+        {/* 装飾ブロック1 — 右上 */}
+        <FadeInOnScroll className="absolute top-[40px] right-0 w-[140px] h-[180px] bg-[#d9d9d9] opacity-60" delay={0} />
+        {/* 装飾ブロック2 — 左中 */}
+        <FadeInOnScroll className="absolute top-[320px] left-0 w-[120px] h-[160px] bg-[#d9d9d9] opacity-60" delay={0.15} />
+
+        <div className="relative z-10 px-[20px]">
+          <h2 className="text-[24px] tracking-[8px] mb-[60px] text-center">Concept</h2>
+          <div className="flex justify-center mb-[30px]">
+            <div className="flex gap-[12px]">
+              <div className="flex flex-col gap-[2px] text-[20px]" style={{ order: 2 }}>
+                {"あなたの写真を".split("").map((c, i) => (
+                  <span key={i} className="w-[20px] h-[30px] flex items-center justify-center">{c}</span>
+                ))}
+                <span className="w-[20px] h-[10px] flex items-center justify-center rotate-180">、</span>
+              </div>
+              <div className="flex flex-col gap-[2px] text-[20px]" style={{ order: 1 }}>
+                {"日本の美で包む".split("").map((c, i) => (
+                  <span key={i} className="w-[20px] h-[30px] flex items-center justify-center">{c}</span>
+                ))}
+              </div>
             </div>
           </div>
+
+          <div className="text-center text-[13px] tracking-[2px] leading-[32px] mb-[50px]">
+            <p>私たちの掛け軸は、既製品ではありません。</p>
+            <p>&nbsp;</p>
+            <p>すべてが、その写真、その空間のための</p>
+            <p>完全オーダーメイドです。</p>
+            <p>&nbsp;</p>
+            <p>掛け軸×写真</p>
+            <p>異なる時代に生まれた表現を</p>
+            <p>ひとつのかたちに。</p>
+            <p>&nbsp;</p>
+            <p>掛け軸が持つ</p>
+            <p>「余白」「間」「季節を飾る文化」と</p>
+            <p>写真が持つ「一瞬を写し取る力」。</p>
+            <p>&nbsp;</p>
+            <p>そのどちらも大切にしながら、</p>
+            <p>新しいアートとしての形を提案します。</p>
+          </div>
+
         </div>
-        <div className="text-center text-[13px] tracking-[2px] leading-[32px] mb-[40px]">
-          <p>私たちの掛け軸は、既製品ではありません。</p>
-          <p>&nbsp;</p>
-          <p>すべてが、その写真、その空間のための</p>
-          <p>完全オーダーメイドです。</p>
-          <p>&nbsp;</p>
-          <p>掛け軸×写真</p>
-          <p>異なる時代に生まれた表現を</p>
-          <p>ひとつのかたちに。</p>
-          <p>&nbsp;</p>
-          <p>掛け軸が持つ</p>
-          <p>「余白」「間」「季節を飾る文化」と</p>
-          <p>写真が持つ「一瞬を写し取る力」。</p>
-          <p>&nbsp;</p>
-          <p>そのどちらも大切にしながら、</p>
-          <p>新しいアートとしての形を提案します。</p>
-        </div>
-        <div className="relative w-full h-[240px] overflow-hidden">
-          <Image src="/images/concept-photo.jpg" alt="掛け軸のある暮らし" fill className="object-cover" />
-        </div>
+
+        {/* 装飾ブロック3 — 左下 */}
+        <FadeInOnScroll className="absolute bottom-[40px] left-0 w-[130px] h-[160px] bg-[#d9d9d9] opacity-60" delay={0} />
+        {/* 装飾ブロック4 — 右下 */}
+        <FadeInOnScroll className="absolute bottom-[20px] right-[20px] w-[150px] h-[170px] bg-[#d9d9d9] opacity-60" delay={0.15} />
       </section>
 
       {/* ===== Transition ===== */}
-      <section className="relative w-[375px] h-[200px] overflow-hidden">
+      <section className="relative w-[375px] h-[300px] overflow-hidden">
         <Image src="/images/transition-bg.jpg" alt="" fill className="object-cover" />
-        <div className="absolute top-0 left-0 w-full h-[20px] bg-[#E7E8B2] z-10" />
-        <div className="absolute bottom-0 left-0 w-full h-[20px] bg-[#E7E8B2] z-10" />
-        <div className="absolute top-[20px] left-0 w-[8px] h-[calc(100%-40px)] bg-[#909AC3] z-10" />
-        <div className="absolute top-[20px] right-0 w-[8px] h-[calc(100%-40px)] bg-[#909AC3] z-10" />
+        <div className="absolute top-0 left-0 w-full h-[30px] bg-[#D1C4B2] z-10" />
+        <div className="absolute bottom-0 left-0 w-full h-[30px] bg-[#D1C4B2] z-10" />
+        <div className="absolute top-[30px] left-0 w-[12px] h-[calc(100%-60px)] bg-[#D1C4B2] z-10" />
+        <div className="absolute top-[30px] right-0 w-[12px] h-[calc(100%-60px)] bg-[#D1C4B2] z-10" />
       </section>
 
       {/* ===== Message ===== */}
@@ -423,23 +450,23 @@ export default function Home() {
         </section>
 
         {/* ===== Concept — Figma: 1920x1695 ===== */}
-        <section className="relative w-[1920px] h-[1695px] bg-[#710b26] text-white overflow-hidden">
+        <section className="relative w-[1920px] h-[1815px] bg-[#710b26] text-white overflow-hidden">
           {/* 灰色矩形1 — Figma: x=1500 y=168 w=320 h=400 */}
-          <div className="absolute top-[168px] left-[1500px] w-[320px] h-[400px] bg-[#d9d9d9] opacity-60" />
+          <FadeInOnScroll className="absolute top-[168px] left-[1500px] w-[320px] h-[400px] bg-[#d9d9d9] opacity-60" delay={0} />
           {/* 灰色矩形2 — Figma: x=0 y=568 w=429 h=350 */}
-          <div className="absolute top-[568px] left-0 w-[429px] h-[350px] bg-[#d9d9d9] opacity-60" />
+          <FadeInOnScroll className="absolute top-[568px] left-0 w-[429px] h-[350px] bg-[#d9d9d9] opacity-60" delay={0.15} />
           {/* 灰色矩形3 — Figma: x=172 y=1231 w=352 h=364 */}
-          <div className="absolute top-[1231px] left-[172px] w-[352px] h-[364px] bg-[#d9d9d9] opacity-60" />
+          <FadeInOnScroll className="absolute top-[1231px] left-[172px] w-[352px] h-[364px] bg-[#d9d9d9] opacity-60" delay={0.3} />
 
           {/* Concept写真 — Figma: x=1430 y=983 w=390 h=480 */}
-          <div className="absolute top-[983px] left-[1430px] w-[390px] h-[480px] overflow-hidden">
+          <FadeInOnScroll className="absolute top-[983px] left-[1430px] w-[390px] h-[480px] overflow-hidden" delay={0.2}>
             <Image
               src="/images/concept-photo.jpg"
               alt="掛け軸のある暮らし"
               fill
               className="object-cover"
             />
-          </div>
+          </FadeInOnScroll>
 
           {/* Concept文字 — Figma: x=99 y=183 */}
           <h2 className="absolute top-[183px] left-[99px] text-[40px] tracking-[16px] text-white">
@@ -500,11 +527,11 @@ export default function Home() {
             />
           </div>
           {/* Top/bottom borders */}
-          <div className="absolute top-0 left-0 w-full h-[64px] bg-[#E7E8B2] z-10" />
-          <div className="absolute bottom-0 left-0 w-full h-[64px] bg-[#E7E8B2] z-10" />
-          {/* Side borders — Figma: #909AC3 w=26 */}
-          <div className="absolute top-[64px] left-0 w-[26px] h-[calc(100%-128px)] bg-[#909AC3] z-10" />
-          <div className="absolute top-[64px] right-0 w-[26px] h-[calc(100%-128px)] bg-[#909AC3] z-10" />
+          <div className="absolute top-0 left-0 w-full h-[64px] bg-[#D1C4B2] z-10" />
+          <div className="absolute bottom-0 left-0 w-full h-[64px] bg-[#D1C4B2] z-10" />
+          {/* Side borders */}
+          <div className="absolute top-[64px] left-0 w-[26px] h-[calc(100%-128px)] bg-[#D1C4B2] z-10" />
+          <div className="absolute top-[64px] right-0 w-[26px] h-[calc(100%-128px)] bg-[#D1C4B2] z-10" />
         </section>
 
         {/* ===== Message — Sticky Scroll ===== */}
