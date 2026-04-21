@@ -137,7 +137,7 @@ function StickyMessage({
 }
 
 const SECTION_LAYOUT_HEIGHT = 5400;
-const STICKY_LAYOUT_HEIGHT = 900;
+const STICKY_LAYOUT_HEIGHT = 1080;
 
 function StickyMessageSection() {
   const ref = useRef<HTMLElement>(null);
@@ -176,6 +176,54 @@ function StickyMessageSection() {
       window.removeEventListener("resize", onScroll);
     };
   }, [progress]);
+
+  // Scroll hijack: while the section is pinned, each wheel gesture snaps to the
+  // next "rest" point (start of each message's hold zone) and locks further
+  // input for ~900ms so users actually read before advancing.
+  useEffect(() => {
+    const stages = [0, 0.42, 0.75, 1.0];
+    let cooldownUntil = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return; // don't interfere with browser zoom
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const pinned = rect.top <= 0 && rect.bottom > window.innerHeight;
+      if (!pinned) return;
+
+      const now = performance.now();
+      if (now < cooldownUntil) {
+        e.preventDefault();
+        return;
+      }
+
+      const scale = rect.height / SECTION_LAYOUT_HEIGHT;
+      const visualStickyH = STICKY_LAYOUT_HEIGHT * scale;
+      const maxVisualScroll = rect.height - visualStickyH;
+      if (maxVisualScroll <= 0) return;
+      const currentProgress = (-rect.top) / maxVisualScroll;
+      const dir = e.deltaY > 0 ? 1 : -1;
+
+      let nextIdx = -1;
+      if (dir > 0) {
+        for (let i = 0; i < stages.length; i++) {
+          if (stages[i] > currentProgress + 0.01) { nextIdx = i; break; }
+        }
+      } else {
+        for (let i = stages.length - 1; i >= 0; i--) {
+          if (stages[i] < currentProgress - 0.01) { nextIdx = i; break; }
+        }
+      }
+      if (nextIdx === -1) return; // at an edge — let the scroll escape the section
+
+      e.preventDefault();
+      const deltaPx = (stages[nextIdx] - currentProgress) * maxVisualScroll;
+      window.scrollBy({ top: deltaPx, behavior: "smooth" });
+      cooldownUntil = now + 900;
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, []);
 
   const messages = [
     {
@@ -398,7 +446,7 @@ function SpPage() {
         <div className="absolute inset-0">
           <Image src="/images/message-bg.jpg" alt="" fill className="object-cover opacity-40" />
         </div>
-        <div className="relative z-10 px-[20px] py-[50px]">
+        <div className="relative z-10 px-[20px] pt-[80px] pb-[50px]">
           <h2 className="text-[#710b26] text-[24px] tracking-[8px] mb-[80px] text-center">Message</h2>
 
           {[
@@ -603,7 +651,7 @@ function SpPage() {
               <span className="text-[12px] tracking-[1px]">Instagram</span>
             </a>
             <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px]">
-              <Image src="/images/line-icon.svg" alt="LINE" width={14} height={14} />
+              <Image src="/images/line-icon-white.svg" alt="LINE" width={15} height={14} />
               <span className="text-[12px] tracking-[1px]">LINE</span>
             </a>
           </div>
@@ -923,9 +971,9 @@ export default function Home() {
               </a>
               <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[12px]">
                 <Image
-                  src="/images/line-icon.svg"
+                  src="/images/line-icon-white.svg"
                   alt="LINE"
-                  width={18}
+                  width={19}
                   height={18}
                 />
                 <span className="text-[18px] tracking-[1.8px]">LINE</span>
