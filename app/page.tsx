@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, useTransform, type MotionValue } from "framer-motion";
+import { motion, useInView, useMotionValue, useTransform, easeInOut, type MotionValue } from "framer-motion";
 import Link from "next/link";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
@@ -114,11 +114,12 @@ function StickyMessage({
   alt: string;
   lines: string[];
 }) {
-  const opacity = useTransform(progress, range, [0, 1, 1, 0]);
+  const opacity = useTransform(progress, range, [0, 1, 1, 0], { ease: easeInOut });
+  const y = useTransform(progress, range, [24, 0, 0, -24], { ease: easeInOut });
   return (
     <motion.div
       className="absolute inset-0 z-10"
-      style={{ opacity }}
+      style={{ opacity, y }}
     >
       <div className="absolute left-0 top-[130px] w-[960px] h-[648px] overflow-hidden">
         <Image src={img} alt={alt} fill className="object-cover" />
@@ -222,14 +223,15 @@ function StickyMessageSection() {
     },
   ];
 
-  // Non-overlapping ranges: msg N fully fades OUT before msg N+1 fades IN.
-  // At the boundary (e.g. 0.33) both are 0 for a single progress point, so
-  // only one message is ever readable — no double-text ghosting.
+  // Non-overlapping ranges with a 2% "breath" gap between messages: the current
+  // message finishes fading out, the screen holds just the background for a
+  // moment, then the next message eases in. 7% fades + easeInOut S-curve keep
+  // the transition elegant without ever showing both texts at once.
   // Format: [a, b, c, d] → opacity 0 at a, 1 from b..c, 0 at d
   const ranges: Array<[number, number, number, number]> = [
-    [0.00, 0.001, 0.31, 0.33], // msg1: visible from start, fade out 0.31 → 0.33
-    [0.33, 0.35, 0.64, 0.66],  // msg2: fade in 0.33 → 0.35, hold, fade out 0.64 → 0.66
-    [0.66, 0.68, 0.999, 1.00], // msg3: fade in 0.66 → 0.68, stay visible to end
+    [0.00, 0.001, 0.26, 0.33], // msg1: hold, fade out 0.26 → 0.33 (7%)
+    [0.35, 0.42, 0.59, 0.66],  // msg2: breath 0.33→0.35, fade in, hold, fade out
+    [0.68, 0.75, 0.999, 1.00], // msg3: breath 0.66→0.68, fade in, hold to end
   ];
 
   return (
@@ -592,21 +594,21 @@ function SpPage() {
           ))}
         </div>
 
+        <p className="text-[10px] tracking-[0.5px] text-center leading-[18px] mb-[30px] -mt-[40px]">
+          ※使用する裂地や仕様により、金額は変動します。ご希望やご予算に合わせて、無理のない形をご提案しますのでお気軽にご相談ください。
+        </p>
+
         {/* CTA */}
         <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full h-[56px] bg-[#f7f7f7] text-[#710b26] text-[13px] tracking-[2px] mb-[12px]">
           公式LINEからオーダーする
           <Image src="/images/line-icon.svg" alt="LINE" width={32} height={30} />
         </a>
-        <Link href="/contact" className="flex items-center justify-center gap-2 w-full h-[56px] bg-[#f7f7f7] text-[#710b26] text-[13px] tracking-[2px] mb-[20px]">
+        <Link href="/contact" className="flex items-center justify-center gap-2 w-full h-[56px] bg-[#f7f7f7] text-[#710b26] text-[13px] tracking-[2px] mb-[30px]">
           お問い合わせからオーダーする
           <span className="inline-block w-[24px] h-[1px] bg-[#710b26] relative">
             <span className="absolute right-0 top-1/2 -translate-y-1/2 border-r-[1.5px] border-t-[1.5px] border-[#710b26] w-[6px] h-[6px] rotate-45" />
           </span>
         </Link>
-
-        <p className="text-[10px] tracking-[0.5px] text-center leading-[18px] mb-[30px]">
-          ※使用する裂地や仕様により、金額は変動します。ご希望やご予算に合わせて、無理のない形をご提案しますのでお気軽にご相談ください。
-        </p>
 
         {/* Gallery */}
         <div className="overflow-hidden -mx-[20px] mb-[30px]">
@@ -639,7 +641,7 @@ function SpPage() {
               <span className="text-[12px] tracking-[1px]">Instagram</span>
             </a>
             <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px]">
-              <Image src="/images/line-icon.svg" alt="LINE" width={16} height={15} />
+              <Image src="/images/line-icon.svg" alt="LINE" width={14} height={14} />
               <span className="text-[12px] tracking-[1px]">LINE</span>
             </a>
           </div>
@@ -889,6 +891,9 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <p className="mt-[30px] w-full text-center text-[14px] tracking-[1px]">
+              ※使用する裂地や仕様により、金額は変動します。ご希望やご予算に合わせて、無理のない形をご提案しますのでお気軽にご相談ください。
+            </p>
           </div>
 
           {/* CTA Buttons — Figma: y=2275 */}
@@ -910,11 +915,6 @@ export default function Home() {
               <span className="absolute right-0 top-1/2 -translate-y-1/2 border-r-[2px] border-t-[2px] border-[#710b26] w-[8px] h-[8px] rotate-45" />
             </span>
           </Link>
-
-          {/* 注意書き — Figma: y≈2455 */}
-          <p className="absolute left-0 top-[2610px] w-full text-center text-[14px] tracking-[1px]">
-            ※使用する裂地や仕様により、金額は変動します。ご希望やご予算に合わせて、無理のない形をご提案しますのでお気軽にご相談ください。
-          </p>
 
           {/* Gallery — Figma: x=-30 y=2574 w=1979 h=280 */}
           <div className="absolute left-0 top-[2729px] w-[1920px] overflow-hidden">
@@ -963,8 +963,8 @@ export default function Home() {
                 <Image
                   src="/images/line-icon.svg"
                   alt="LINE"
-                  width={22}
-                  height={21}
+                  width={18}
+                  height={18}
                 />
                 <span className="text-[18px] tracking-[1.8px]">LINE</span>
               </a>
