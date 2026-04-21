@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
 import Link from "next/link";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
@@ -52,67 +52,158 @@ function ScaledWrapper({ children, spChildren }: { children: React.ReactNode; sp
   );
 }
 
-function StickyMessageSection() {
+function StickyMessage({
+  progress,
+  range,
+  img,
+  alt,
+  lines,
+}: {
+  progress: MotionValue<number>;
+  range: [number, number, number, number];
+  img: string;
+  alt: string;
+  lines: string[];
+}) {
+  const opacity = useTransform(progress, range, [0, 1, 1, 0]);
+  const y = useTransform(progress, range, [20, 0, 0, -20]);
   return (
-    <section className="relative w-[1920px] h-[3009px] bg-white overflow-hidden">
-      {/* 背景テクスチャ */}
-      <div className="absolute inset-0 overflow-hidden">
-        <Image
-          src="/images/message-bg.jpg"
-          alt=""
-          width={2730}
-          height={4096}
-          className="absolute max-w-none opacity-40"
-          style={{ width: 2730, height: 4096, left: -702, top: -526 }}
-        />
+    <motion.div
+      className="absolute inset-0 z-10"
+      style={{ opacity, y }}
+    >
+      <div className="absolute left-0 top-[130px] w-[960px] h-[648px] overflow-hidden">
+        <Image src={img} alt={alt} fill className="object-cover" />
       </div>
+      <div
+        className="absolute left-[1110px] top-[260px] w-[534px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]"
+        style={{ fontFamily: 'Zen Old Mincho' }}
+      >
+        {lines.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
-      <h2 className="absolute z-10 left-[99px] top-[206px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
+const SECTION_LAYOUT_HEIGHT = 7200;
+const STICKY_LAYOUT_HEIGHT = 900;
 
-      {/* Message 1 */}
-      <div className="absolute z-10 left-0 top-[406px] w-[960px] h-[648px] overflow-hidden">
-        <Image src="/images/message-photo1.jpg" alt="掛け軸の裂地" fill className="object-cover" />
-      </div>
-      <div className="absolute z-10 left-[1110px] top-[538px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
-        <p>「伝統を継ぎ、未来を綴る」</p>
-        <p>文化財修復という、歴史を守る現場で</p>
-        <p>磨かれた確かな技術。</p>
-        <p>機械では決して生み出せない、</p>
-        <p>一点一点、呼吸を合わせるような</p>
-        <p>完全ハンドメイド。</p>
-        <p>手仕事ならではの柔らかな風合いに、</p>
-        <p>職人の誇りを込めてお届けします。</p>
-      </div>
+function StickyMessageSection() {
+  const ref = useRef<HTMLElement>(null);
+  const rawProgress = useMotionValue(0); // 0..1 raw from scroll
+  // Spring-smoothed for silky crossfades even with chunky mousewheel input
+  const progress = useSpring(rawProgress, { stiffness: 220, damping: 38, mass: 0.4 });
 
-      {/* Message 2 */}
-      <div className="absolute z-10 left-0 top-[1254px] w-[960px] h-[648px] overflow-hidden">
-        <Image src="/images/message-photo2.jpg" alt="掛け軸のある空間" fill className="object-cover" />
-      </div>
-      <div className="absolute z-10 left-[1110px] top-[1395px] w-[534px] h-[384px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
-        <p>「敷居をまたぎ、日常に馴染む」</p>
-        <p>「掛軸は少し格式が高い」というこれまでの</p>
-        <p>常識を、私たちは軽やかにひっくり返します。</p>
-        <p>現代のリビングに、</p>
-        <p>驚くほど自然にフィットする佇まい。</p>
-        <p>もっと扱いやすく、もっと身近に。</p>
-        <p>あなたの何気ない日常の風景に、</p>
-        <p>そっと彩りを添えます。</p>
-      </div>
+  useEffect(() => {
+    const compute = () => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const scale = rect.height / SECTION_LAYOUT_HEIGHT;
+      if (scale <= 0) return;
+      const visualStickyH = STICKY_LAYOUT_HEIGHT * scale;
+      const maxVisualScroll = rect.height - visualStickyH;
+      if (maxVisualScroll <= 0) return;
+      const scrolled = -rect.top;
+      const clamped = Math.max(0, Math.min(maxVisualScroll, scrolled));
+      rawProgress.set(clamped / maxVisualScroll);
+    };
+    compute();
+    window.addEventListener("scroll", compute, { passive: true });
+    window.addEventListener("resize", compute);
+    return () => {
+      window.removeEventListener("scroll", compute);
+      window.removeEventListener("resize", compute);
+    };
+  }, [rawProgress]);
 
-      {/* Message 3 */}
-      <div className="absolute z-10 left-0 top-[2092px] w-[960px] h-[648px] overflow-hidden">
-        <Image src="/images/message-photo3.jpg" alt="掛け軸と家族の思い出" fill className="object-cover" />
-      </div>
-      <div className="absolute z-10 left-[1110px] top-[2199px] w-[534px] h-[434px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]" style={{ fontFamily: 'Zen Old Mincho' }}>
-        <p>「記憶を飾り、心を贈る」</p>
-        <p>家族の笑顔や、心に留めておきたい</p>
-        <p>大切な瞬間。</p>
-        <p>デジタルの中にある思い出を「形」にして、</p>
-        <p>世界にひとつだけの掛軸へ。</p>
-        <p>お世話になった方への贈り物や、</p>
-        <p>特別な記念日にも。</p>
-        <p>言葉では伝えきれない想いを、</p>
-        <p>確かな形に託して。</p>
+  const messages = [
+    {
+      img: "/images/message-photo1.jpg",
+      alt: "掛け軸の裂地",
+      lines: [
+        "「伝統を継ぎ、未来を綴る」",
+        "文化財修復という、歴史を守る現場で",
+        "磨かれた確かな技術。",
+        "機械では決して生み出せない、",
+        "一点一点、呼吸を合わせるような",
+        "完全ハンドメイド。",
+        "手仕事ならではの柔らかな風合いに、",
+        "職人の誇りを込めてお届けします。",
+      ],
+    },
+    {
+      img: "/images/message-photo2.jpg",
+      alt: "掛け軸のある空間",
+      lines: [
+        "「敷居をまたぎ、日常に馴染む」",
+        "「掛軸は少し格式が高い」というこれまでの",
+        "常識を、私たちは軽やかにひっくり返します。",
+        "現代のリビングに、",
+        "驚くほど自然にフィットする佇まい。",
+        "もっと扱いやすく、もっと身近に。",
+        "あなたの何気ない日常の風景に、",
+        "そっと彩りを添えます。",
+      ],
+    },
+    {
+      img: "/images/message-photo3.jpg",
+      alt: "掛け軸と家族の思い出",
+      lines: [
+        "「記憶を飾り、心を贈る」",
+        "家族の笑顔や、心に留めておきたい",
+        "大切な瞬間。",
+        "デジタルの中にある思い出を「形」にして、",
+        "世界にひとつだけの掛軸へ。",
+        "お世話になった方への贈り物や、",
+        "特別な記念日にも。",
+        "言葉では伝えきれない想いを、",
+        "確かな形に託して。",
+      ],
+    },
+  ];
+
+  // Crossfade ranges: adjacent messages OVERLAP so one fades out while the next fades in
+  // at the same time — no blank moment between messages.
+  // Format: [a, b, c, d] → opacity 0 at a, 1 from b..c, 0 at d
+  const ranges: Array<[number, number, number, number]> = [
+    [0.00, 0.001, 0.28, 0.40], // msg1: already visible at start, fade out 0.28 → 0.40
+    [0.28, 0.40, 0.60, 0.72],  // msg2: fade in 0.28 → 0.40 (overlaps msg1 out), fade out 0.60 → 0.72
+    [0.60, 0.72, 0.999, 1.00], // msg3: fade in 0.60 → 0.72 (overlaps msg2 out), stay visible to end
+  ];
+
+  return (
+    <section ref={ref} className="relative w-[1920px] bg-white" style={{ height: SECTION_LAYOUT_HEIGHT }}>
+      <div
+        className="sticky top-0 w-[1920px] overflow-hidden"
+        style={{ height: STICKY_LAYOUT_HEIGHT }}
+      >
+        {/* 背景テクスチャ */}
+        <div className="absolute inset-0 overflow-hidden">
+          <Image
+            src="/images/message-bg.jpg"
+            alt=""
+            width={2730}
+            height={4096}
+            className="absolute max-w-none opacity-40"
+            style={{ width: 2730, height: 4096, left: -702, top: -526 }}
+          />
+        </div>
+
+        <h2 className="absolute z-20 left-[99px] top-[60px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
+
+        {messages.map((m, i) => (
+          <StickyMessage
+            key={i}
+            progress={progress}
+            range={ranges[i]}
+            img={m.img}
+            alt={m.alt}
+            lines={m.lines}
+          />
+        ))}
       </div>
     </section>
   );
@@ -140,10 +231,14 @@ function SpPage() {
 
       {/* ===== Concept ===== */}
       <section className="relative w-[375px] bg-[#710b26] text-white py-[60px] pb-[160px] overflow-hidden">
-        {/* 装飾ブロック1 — 右上 */}
-        <FadeInOnScroll className="absolute top-[40px] right-0 w-[140px] h-[180px] bg-[#d9d9d9] opacity-60" delay={0} />
-        {/* 装飾ブロック2 — 左中 */}
-        <FadeInOnScroll className="absolute top-[320px] left-0 w-[120px] h-[160px] bg-[#d9d9d9] opacity-60" delay={0.15} />
+        {/* 装飾写真1 — 右上 */}
+        <FadeInOnScroll className="absolute top-[40px] right-0 w-[140px] h-[180px] overflow-hidden" delay={0}>
+          <Image src="/images/concept-photo1.jpg" alt="" fill className="object-cover" />
+        </FadeInOnScroll>
+        {/* 装飾写真2 — 左中 */}
+        <FadeInOnScroll className="absolute top-[320px] left-0 w-[120px] h-[160px] overflow-hidden" delay={0.15}>
+          <Image src="/images/concept-photo2.jpg" alt="" fill className="object-cover" />
+        </FadeInOnScroll>
 
         <div className="relative z-10 px-[20px]">
           <h2 className="text-[24px] tracking-[8px] mb-[60px] text-center">Concept</h2>
@@ -183,10 +278,14 @@ function SpPage() {
 
         </div>
 
-        {/* 装飾ブロック3 — 左下 */}
-        <FadeInOnScroll className="absolute bottom-[40px] left-0 w-[130px] h-[160px] bg-[#d9d9d9] opacity-60" delay={0} />
-        {/* 装飾ブロック4 — 右下 */}
-        <FadeInOnScroll className="absolute bottom-[20px] right-[20px] w-[150px] h-[170px] bg-[#d9d9d9] opacity-60" delay={0.15} />
+        {/* 装飾写真3 — 左下 */}
+        <FadeInOnScroll className="absolute bottom-[40px] left-0 w-[130px] h-[160px] overflow-hidden" delay={0}>
+          <Image src="/images/concept-photo3.jpg" alt="" fill className="object-cover" />
+        </FadeInOnScroll>
+        {/* 装飾写真4 — 右下 */}
+        <FadeInOnScroll className="absolute bottom-[20px] right-[20px] w-[150px] h-[170px] overflow-hidden" delay={0.15}>
+          <Image src="/images/concept-photo.jpg" alt="" fill className="object-cover" />
+        </FadeInOnScroll>
       </section>
 
       {/* ===== Transition ===== */}
@@ -340,7 +439,7 @@ function SpPage() {
           >
             {[...Array(20)].map((_, i) => (
               <div key={i} className="w-[160px] h-[120px] bg-[#d9d9d9] shrink-0 ml-[8px] overflow-hidden relative">
-                <Image src={`/images/message-photo${(i % 3) + 1}.jpg`} alt="" fill className="object-cover" />
+                <Image src={`/images/gallery${String((i % 10) + 1).padStart(2, "0")}.jpg`} alt="" fill className="object-cover" />
               </div>
             ))}
           </motion.div>
@@ -418,12 +517,18 @@ export default function Home() {
 
         {/* ===== Concept — Figma: 1920x1695 ===== */}
         <section className="relative w-[1920px] h-[1975px] bg-[#710b26] text-white overflow-hidden">
-          {/* 灰色矩形1 — Figma: x=1500 y=168 w=320 h=400 */}
-          <FadeInOnScroll className="absolute top-[168px] left-[1500px] w-[320px] h-[400px] bg-[#d9d9d9] opacity-60" delay={0} />
-          {/* 灰色矩形2 — Figma: x=0 y=568 w=429 h=350 */}
-          <FadeInOnScroll className="absolute top-[568px] left-0 w-[429px] h-[350px] bg-[#d9d9d9] opacity-60" delay={0.15} />
-          {/* 灰色矩形3 — Figma: x=172 y=1231 w=352 h=364 */}
-          <FadeInOnScroll className="absolute top-[1391px] left-[172px] w-[352px] h-[364px] bg-[#d9d9d9] opacity-60" delay={0.3} />
+          {/* 装飾写真1 — Figma: x=1500 y=168 w=320 h=400 */}
+          <FadeInOnScroll className="absolute top-[168px] left-[1500px] w-[320px] h-[400px] overflow-hidden" delay={0}>
+            <Image src="/images/concept-photo1.jpg" alt="" fill className="object-cover" />
+          </FadeInOnScroll>
+          {/* 装飾写真2 — Figma: x=0 y=568 w=429 h=350 */}
+          <FadeInOnScroll className="absolute top-[568px] left-0 w-[429px] h-[350px] overflow-hidden" delay={0.15}>
+            <Image src="/images/concept-photo2.jpg" alt="" fill className="object-cover" />
+          </FadeInOnScroll>
+          {/* 装飾写真3 — Figma: x=172 y=1231 w=352 h=364 */}
+          <FadeInOnScroll className="absolute top-[1391px] left-[172px] w-[352px] h-[364px] overflow-hidden" delay={0.3}>
+            <Image src="/images/concept-photo3.jpg" alt="" fill className="object-cover" />
+          </FadeInOnScroll>
 
           {/* Concept写真 — Figma: x=1430 y=983 w=390 h=480 */}
           <FadeInOnScroll className="absolute top-[1143px] left-[1430px] w-[390px] h-[480px] overflow-hidden" delay={0.2}>
@@ -629,7 +734,7 @@ export default function Home() {
             >
               {[...Array(20)].map((_, i) => (
                 <div key={i} className="w-[380px] h-[280px] bg-[#d9d9d9] shrink-0 ml-[19px] overflow-hidden relative">
-                  <Image src={`/images/message-photo${(i % 3) + 1}.jpg`} alt="" fill className="object-cover" />
+                  <Image src={`/images/gallery${String((i % 10) + 1).padStart(2, "0")}.jpg`} alt="" fill className="object-cover" />
                 </div>
               ))}
             </motion.div>
