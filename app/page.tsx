@@ -625,13 +625,24 @@ function SpPage() {
 
         {/* Footer */}
         <footer className="text-white pt-[20px] flex flex-col items-center">
-          <div className="w-[60px] h-[94px] relative mb-[16px]">
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="トップに戻る"
+            className="w-[60px] h-[94px] relative mb-[16px] cursor-pointer"
+          >
             <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" fill className="object-contain" />
+          </button>
+          <div className="flex items-center gap-[20px] mb-[16px]">
+            <a href="https://www.instagram.com/kakephoto_art/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px]">
+              <Image src="/images/instagram-icon.svg" alt="Instagram" width={14} height={14} />
+              <span className="text-[12px] tracking-[1px]">Instagram</span>
+            </a>
+            <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px]">
+              <Image src="/images/line-icon.svg" alt="LINE" width={16} height={15} />
+              <span className="text-[12px] tracking-[1px]">LINE</span>
+            </a>
           </div>
-          <a href="https://www.instagram.com/kakephoto_art/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[8px] mb-[16px]">
-            <Image src="/images/instagram-icon.svg" alt="Instagram" width={14} height={14} />
-            <span className="text-[12px] tracking-[1px]">Instagram</span>
-          </a>
           <p className="text-[10px] tracking-[0.8px] mb-[8px]"><a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">キャンセルポリシー</a></p>
           <p className="text-[9px] tracking-[0.8px]">©︎KAKEPHOTO All Rights Reserved.</p>
         </footer>
@@ -923,25 +934,41 @@ export default function Home() {
           {/* Footer — Figma: x=100 y=2926 w=1720 h=217 */}
           <footer className="absolute left-[100px] top-[3081px] w-[1720px] h-[217px] text-white">
             {/* Logo */}
-            <div className="absolute left-0 top-0 w-[110px] h-[173px]">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="トップに戻る"
+              className="absolute left-0 top-0 w-[110px] h-[173px] cursor-pointer hover:opacity-80 transition-opacity"
+            >
               <Image
                 src="/images/footer-logo.svg"
                 alt="KAKEPHOTO"
                 fill
                 className="object-contain"
               />
-            </div>
+            </button>
 
-            {/* Instagram */}
-            <a href="https://www.instagram.com/kakephoto_art/" target="_blank" rel="noopener noreferrer" className="absolute right-0 top-[33px] flex items-center gap-[12px]">
-              <Image
-                src="/images/instagram-icon.svg"
-                alt="Instagram"
-                width={18}
-                height={18}
-              />
-              <span className="text-[18px] tracking-[1.8px]">Instagram</span>
-            </a>
+            {/* SNS */}
+            <div className="absolute right-0 top-[33px] flex items-center gap-[32px]">
+              <a href="https://www.instagram.com/kakephoto_art/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[12px]">
+                <Image
+                  src="/images/instagram-icon.svg"
+                  alt="Instagram"
+                  width={18}
+                  height={18}
+                />
+                <span className="text-[18px] tracking-[1.8px]">Instagram</span>
+              </a>
+              <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-[12px]">
+                <Image
+                  src="/images/line-icon.svg"
+                  alt="LINE"
+                  width={22}
+                  height={21}
+                />
+                <span className="text-[18px] tracking-[1.8px]">LINE</span>
+              </a>
+            </div>
 
             {/* Copyright */}
             <p className="absolute left-[738px] top-[167px] text-[12px] tracking-[1.2px]">
