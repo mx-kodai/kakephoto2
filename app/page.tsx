@@ -181,17 +181,28 @@ function StickyMessageSection() {
   // next "rest" point (start of each message's hold zone) and locks further
   // input for ~900ms so users actually read before advancing.
   useEffect(() => {
-    const stages = [0, 0.42, 0.75, 1.0];
+    const stages = [0, 0.42, 0.75];
     let cooldownUntil = 0;
+    let wasPinned = false;
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return; // don't interfere with browser zoom
       const el = ref.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const pinned = rect.top <= 0 && rect.bottom > window.innerHeight;
-      if (!pinned) return;
+      if (!pinned) {
+        wasPinned = false;
+        return;
+      }
 
       const now = performance.now();
+      // Just entered pinned state — hold 700ms so user reads msg1
+      if (!wasPinned) {
+        wasPinned = true;
+        cooldownUntil = now + 700;
+        e.preventDefault();
+        return;
+      }
       if (now < cooldownUntil) {
         e.preventDefault();
         return;
@@ -279,7 +290,7 @@ function StickyMessageSection() {
   const ranges: Array<[number, number, number, number]> = [
     [0.00, 0.001, 0.26, 0.33], // msg1: hold, fade out 0.26 → 0.33 (7%)
     [0.35, 0.42, 0.59, 0.66],  // msg2: breath 0.33→0.35, fade in, hold, fade out
-    [0.68, 0.75, 0.999, 1.00], // msg3: breath 0.66→0.68, fade in, hold to end
+    [0.68, 0.75, 1.10, 1.20], // msg3: breath 0.66→0.68, fade in, hold visible past progress=1 (fades only as section leaves)
   ];
 
   return (

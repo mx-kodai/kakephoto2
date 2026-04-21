@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kakephoto.com"),
   title: "KAKEPHOTO（かけフォト）| 写真を掛け軸に仕立てる完全オーダーメイド",
   description:
     "KAKEPHOTO（かけフォト）は、あなたの写真を掛け軸に仕立てる完全オーダーメイドのアートサービスです。文化財修復の技術を持つ職人が、一点一点手仕事でお作りします。写真 掛け軸 オーダーメイド ギフト",
