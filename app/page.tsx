@@ -269,6 +269,8 @@ function StickyMessageSection() {
 
 function SpStickyHeader() {
   const [visible, setVisible] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const [topBtnVisible, setTopBtnVisible] = useState(false);
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -281,22 +283,60 @@ function SpStickyHeader() {
       } else if (y > lastY.current + 4) {
         setVisible(false);
       }
+      setTopBtnVisible(y > 400);
       lastY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const sections = document.querySelectorAll<HTMLElement>("[data-sp-theme]");
+    if (sections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsDark(entry.target.getAttribute("data-sp-theme") === "dark");
+          }
+        });
+      },
+      { rootMargin: "-60px 0px -90% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <motion.div
-      initial={{ y: -80, opacity: 0 }}
-      animate={visible ? { y: 0, opacity: 1 } : { y: -80, opacity: 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed top-[20px] left-[16px] z-50"
-      style={{ pointerEvents: visible ? "auto" : "none" }}
-    >
-      <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={72} height={112} />
-    </motion.div>
+    <>
+      <motion.div
+        initial={{ y: -80, opacity: 0 }}
+        animate={visible ? { y: 0, opacity: 1 } : { y: -80, opacity: 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-[20px] left-[16px] z-50"
+        style={{ pointerEvents: visible ? "auto" : "none" }}
+      >
+        <motion.div
+          animate={{ filter: isDark ? "invert(0)" : "invert(1)" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={72} height={112} />
+        </motion.div>
+      </motion.div>
+
+      <motion.button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        initial={{ opacity: 0, y: 16 }}
+        animate={topBtnVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        aria-label="トップに戻る"
+        className="fixed bottom-[24px] right-[16px] z-50 w-[44px] h-[44px] rounded-full bg-[#710b26]/80 backdrop-blur-sm flex items-center justify-center shadow-md"
+        style={{ pointerEvents: topBtnVisible ? "auto" : "none" }}
+      >
+        <span className="block w-[10px] h-[10px] border-t-[2px] border-l-[2px] border-white rotate-45 translate-y-[2px]" />
+      </motion.button>
+    </>
   );
 }
 
@@ -305,7 +345,7 @@ function SpPage() {
     <main className="w-[375px] overflow-hidden" style={{ fontFamily: 'Zen Old Mincho, serif' }}>
       <SpStickyHeader />
       {/* ===== FV ===== */}
-      <section className="relative w-[375px] h-[680px] overflow-hidden">
+      <section data-sp-theme="dark" className="relative w-[375px] h-[680px] overflow-hidden">
         <div className="absolute inset-0">
           <Image src="/images/fv-bg.jpg" alt="KAKEPHOTO" fill className="object-cover" priority />
         </div>
@@ -322,7 +362,7 @@ function SpPage() {
       </section>
 
       {/* ===== Concept ===== */}
-      <section className="relative w-[375px] bg-[#710b26] text-white pt-[120px] pb-[380px] overflow-hidden">
+      <section data-sp-theme="dark" className="relative w-[375px] bg-[#710b26] text-white pt-[120px] pb-[380px] overflow-hidden">
         {/* 装飾写真1 — 右上 */}
         <FadeInOnScroll className="absolute top-[100px] right-0 w-[140px] h-[180px] overflow-hidden" delay={0}>
           <Image src="/images/concept-photo1.jpg" alt="" fill className="object-cover" />
@@ -381,7 +421,7 @@ function SpPage() {
       </section>
 
       {/* ===== Transition ===== */}
-      <section className="relative w-[375px] h-[300px] overflow-hidden">
+      <section data-sp-theme="light" className="relative w-[375px] h-[300px] overflow-hidden">
         <Image src="/images/transition-bg.jpg" alt="" fill className="object-cover" />
         <div className="absolute top-0 left-0 w-full h-[30px] bg-[#D1C4B2] z-10" />
         <div className="absolute bottom-0 left-0 w-full h-[30px] bg-[#D1C4B2] z-10" />
@@ -390,7 +430,7 @@ function SpPage() {
       </section>
 
       {/* ===== Message ===== */}
-      <section className="relative w-[375px] bg-white overflow-hidden">
+      <section data-sp-theme="light" className="relative w-[375px] bg-white overflow-hidden">
         <div className="absolute inset-0">
           <Image src="/images/message-bg.jpg" alt="" fill className="object-cover opacity-40" />
         </div>
@@ -461,7 +501,7 @@ function SpPage() {
       </section>
 
       {/* ===== Order ===== */}
-      <section className="relative w-[375px] bg-[#710b26] text-white px-[20px] py-[50px]">
+      <section data-sp-theme="dark" className="relative w-[375px] bg-[#710b26] text-white px-[20px] py-[50px]">
         <h2 className="text-[24px] tracking-[8px] mb-[40px] text-center">Order</h2>
         <p className="text-[12px] tracking-[1.5px] leading-[28px] text-center mb-[30px]">
           掛け軸は、オーダーにてお作りしています。<br />写真の内容だけでなく、裂地の色や質感、<br />全体の配色バランスまで。<br />空間や飾る場所を想像しながら、<br />一緒に仕立てていく時間も大切にしています。
