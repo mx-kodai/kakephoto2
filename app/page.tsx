@@ -267,9 +267,43 @@ function StickyMessageSection() {
   );
 }
 
+function SpStickyHeader() {
+  const [visible, setVisible] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 200) {
+        setVisible(false);
+      } else if (y < lastY.current - 4) {
+        setVisible(true);
+      } else if (y > lastY.current + 4) {
+        setVisible(false);
+      }
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ y: -80, opacity: 0 }}
+      animate={visible ? { y: 0, opacity: 1 } : { y: -80, opacity: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-sm px-[16px] py-[10px] flex items-center"
+      style={{ pointerEvents: visible ? "auto" : "none" }}
+    >
+      <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={40} height={62} />
+    </motion.div>
+  );
+}
+
 function SpPage() {
   return (
     <main className="w-[375px] overflow-hidden" style={{ fontFamily: 'Zen Old Mincho, serif' }}>
+      <SpStickyHeader />
       {/* ===== FV ===== */}
       <section className="relative w-[375px] h-[680px] overflow-hidden">
         <div className="absolute inset-0">
