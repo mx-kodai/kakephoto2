@@ -276,7 +276,7 @@ function SpPage() {
           <Image src="/images/fv-bg.jpg" alt="KAKEPHOTO" fill className="object-cover" priority />
         </div>
         <div className="absolute top-[20px] left-[16px] z-10">
-          <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={56} height={88} />
+          <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={72} height={112} />
         </div>
         <div className="absolute top-[140px] left-1/2 -translate-x-1/2 z-10 hidden">
           <Image src="/images/logo-center.svg" alt="KAKEPHOTO" width={150} height={236} />
@@ -507,7 +507,7 @@ function SpPage() {
         <div className="mb-[60px]">
           {[
             { step: "Step1", text: "まずは公式LINEもしくはお問合せからご連絡ください。" },
-            { step: "Step2", text: "職人から詳しいヒアリングの連絡をさせていただきます。" },
+            { step: "Step2", text: "詳細をお伺いするため、後日、職人よりご連絡いたします。" },
             { step: "Step3", text: "写真からおすすめの裂地を選定させていただきます。" },
             { step: "Step4", text: "裂地を確認後、制作に移らせていただきます。" },
           ].map((item, i) => (
@@ -519,7 +519,7 @@ function SpPage() {
         </div>
 
         {/* CTA */}
-        <a href="#" className="flex items-center justify-center gap-3 w-full h-[56px] bg-[#f7f7f7] text-[#710b26] text-[13px] tracking-[2px] mb-[12px]">
+        <a href="https://line.me/R/ti/p/@447updgf" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full h-[56px] bg-[#f7f7f7] text-[#710b26] text-[13px] tracking-[2px] mb-[12px]">
           公式LINEからオーダーする
           <Image src="/images/line-icon.svg" alt="LINE" width={32} height={30} />
         </a>
@@ -794,7 +794,7 @@ export default function Home() {
             <div>
               {[
                 { step: "Step1", text: "まずは公式LINEもしくはお問合せからご連絡ください。" },
-                { step: "Step2", text: "職人から詳しいヒアリングの連絡をさせていただきます。" },
+                { step: "Step2", text: "詳細をお伺いするため、後日、職人よりご連絡いたします。" },
                 { step: "Step3", text: "写真からおすすめの裂地を選定させていただきます。この時点でご希望の色味などがございましたらお知らせください。" },
                 { step: "Step4", text: "実際に使用する裂地を確認していただいたのち、制作に移らせていただきます。" },
               ].map((item, i) => (
@@ -808,7 +808,9 @@ export default function Home() {
 
           {/* CTA Buttons — Figma: y=2275 */}
           <a
-            href="#"
+            href="https://line.me/R/ti/p/@447updgf"
+            target="_blank"
+            rel="noopener noreferrer"
             className="absolute left-[300px] top-[2430px] flex items-center justify-center gap-4 w-[640px] h-[110px] bg-[#f7f7f7] border border-white text-[#710b26] text-[20px] tracking-[4.4px] hover:opacity-90 transition-opacity"
           >
             KAKEPHOTO 公式LINEからオーダーする
