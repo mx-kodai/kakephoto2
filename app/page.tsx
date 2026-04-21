@@ -121,11 +121,11 @@ function StickyMessage({
       className="absolute inset-0 z-10"
       style={{ opacity, y }}
     >
-      <div className="absolute left-0 top-[130px] w-[960px] h-[648px] overflow-hidden">
+      <div className="absolute left-0 top-[220px] w-[960px] h-[648px] overflow-hidden">
         <Image src={img} alt={alt} fill className="object-cover" />
       </div>
       <div
-        className="absolute left-[1110px] top-[260px] w-[534px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]"
+        className="absolute left-[1110px] top-[350px] w-[534px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]"
         style={{ fontFamily: 'Zen Old Mincho' }}
       >
         {lines.map((line, i) => (
@@ -136,7 +136,7 @@ function StickyMessage({
   );
 }
 
-const SECTION_LAYOUT_HEIGHT = 7200;
+const SECTION_LAYOUT_HEIGHT = 5400;
 const STICKY_LAYOUT_HEIGHT = 900;
 
 function StickyMessageSection() {
@@ -319,7 +319,7 @@ function SpPage() {
         <div className="absolute top-[140px] left-1/2 -translate-x-1/2 z-10 hidden">
           <Image src="/images/logo-center.svg" alt="KAKEPHOTO" width={150} height={236} />
         </div>
-        <div className="absolute bottom-[24px] right-[16px] text-right text-white z-10">
+        <div className="absolute bottom-[80px] right-[16px] text-right text-white z-10">
           <p className="text-[13px] tracking-[2px] font-medium">FULL CUSTOM MADE</p>
           <p className="text-[10px] tracking-[1.5px] mt-1">Each piece is made exclusively for one photograph.</p>
         </div>
