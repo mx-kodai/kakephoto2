@@ -178,12 +178,55 @@ function StickyMessageSection() {
   }, [progress]);
 
   // Scroll hijack: while the section is pinned, each wheel gesture snaps to the
-  // next "rest" point (start of each message's hold zone) and locks further
-  // input for ~900ms so users actually read before advancing.
+  // next stage with a custom 3-phase animation — fade out, pause (breath),
+  // fade in. Gesture detection (160ms quiet gap) prevents trackpad inertia
+  // from auto-advancing to the next stage.
   useEffect(() => {
     const stages = [0, 0.42, 0.75];
     let cooldownUntil = 0;
     let wasPinned = false;
+    let lastWheelAt = 0;
+    let animId = 0;
+
+    const snapAnimate = (fromP: number, toP: number, maxVisualScroll: number) => {
+      const sign = Math.sign(toP - fromP);
+      const mid = (fromP + toP) / 2;
+      const fadeOutStart = mid - 0.04 * sign;
+      const fadeOutEnd = mid - 0.01 * sign;
+      const fadeInStart = mid + 0.01 * sign;
+      const fadeInEnd = mid + 0.04 * sign;
+      // [t_ms, progress] keyframes: quick stable travel → slow fade → hold breath → slow fade → quick travel
+      const kfs: [number, number][] = [
+        [0, fromP],
+        [220, fadeOutStart],
+        [560, fadeOutEnd],
+        [960, fadeInStart],
+        [1300, fadeInEnd],
+        [1500, toP],
+      ];
+      const startY = window.scrollY;
+      const pToY = (p: number) => startY + (p - fromP) * maxVisualScroll;
+      const t0 = performance.now();
+      cancelAnimationFrame(animId);
+      const tick = () => {
+        const elapsed = performance.now() - t0;
+        if (elapsed >= 1500) {
+          window.scrollTo(0, pToY(toP));
+          return;
+        }
+        let i = 0;
+        while (i < kfs.length - 1 && elapsed >= kfs[i + 1][0]) i++;
+        const [ta, pa] = kfs[i];
+        const [tb, pb] = kfs[i + 1];
+        const u = tb > ta ? (elapsed - ta) / (tb - ta) : 1;
+        const eased = u * u * (3 - 2 * u); // smoothstep per segment
+        const p = pa + (pb - pa) * eased;
+        window.scrollTo(0, pToY(p));
+        animId = requestAnimationFrame(tick);
+      };
+      animId = requestAnimationFrame(tick);
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return; // don't interfere with browser zoom
       const el = ref.current;
@@ -196,14 +239,21 @@ function StickyMessageSection() {
       }
 
       const now = performance.now();
-      // Just entered pinned state — hold 700ms so user reads msg1
+      const gapSinceLastWheel = now - lastWheelAt;
+      lastWheelAt = now;
+
       if (!wasPinned) {
         wasPinned = true;
-        cooldownUntil = now + 700;
+        cooldownUntil = now + 700; // hold at entry so user reads msg1
         e.preventDefault();
         return;
       }
       if (now < cooldownUntil) {
+        e.preventDefault();
+        return;
+      }
+      // Require a fresh gesture — trackpad inertia fires rapid wheels; ignore them
+      if (gapSinceLastWheel < 160) {
         e.preventDefault();
         return;
       }
@@ -225,15 +275,17 @@ function StickyMessageSection() {
           if (stages[i] < currentProgress - 0.01) { nextIdx = i; break; }
         }
       }
-      if (nextIdx === -1) return; // at an edge — let the scroll escape the section
+      if (nextIdx === -1) return; // at an edge — let scroll escape the section
 
       e.preventDefault();
-      const deltaPx = (stages[nextIdx] - currentProgress) * maxVisualScroll;
-      window.scrollBy({ top: deltaPx, behavior: "smooth" });
-      cooldownUntil = now + 900;
+      snapAnimate(currentProgress, stages[nextIdx], maxVisualScroll);
+      cooldownUntil = now + 1600; // full animation + small buffer
     };
     window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("wheel", onWheel);
+    };
   }, []);
 
   const messages = [
@@ -282,15 +334,17 @@ function StickyMessageSection() {
     },
   ];
 
-  // Non-overlapping ranges with a 2% "breath" gap between messages: the current
-  // message finishes fading out, the screen holds just the background for a
-  // moment, then the next message eases in. 7% fades + easeInOut S-curve keep
-  // the transition elegant without ever showing both texts at once.
-  // Format: [a, b, c, d] → opacity 0 at a, 1 from b..c, 0 at d
+  // Ranges aligned with the custom snap animator. Each transit's fade-out /
+  // breath / fade-in sits symmetrically around the midpoint between stages, so
+  // the animator's timed phases land exactly on the visual changes.
+  //   stage 0 → 0.42  (mid 0.21): fade-out 0.17→0.20, breath 0.20→0.22, fade-in 0.22→0.25
+  //   stage 0.42 → 0.75 (mid 0.585): fade-out 0.545→0.575, breath 0.575→0.595, fade-in 0.595→0.625
+  // msg1 starts visible at p=0 (a=-0.01 so b=0 gives opacity 1 exactly at entry).
+  // msg3 holds visible past progress=1 (fades only as the section physically leaves viewport).
   const ranges: Array<[number, number, number, number]> = [
-    [0.00, 0.001, 0.26, 0.33], // msg1: hold, fade out 0.26 → 0.33 (7%)
-    [0.35, 0.42, 0.59, 0.66],  // msg2: breath 0.33→0.35, fade in, hold, fade out
-    [0.68, 0.75, 1.10, 1.20], // msg3: breath 0.66→0.68, fade in, hold visible past progress=1 (fades only as section leaves)
+    [-0.01, 0.00, 0.17, 0.20],
+    [0.22, 0.25, 0.545, 0.575],
+    [0.595, 0.625, 1.10, 1.20],
   ];
 
   return (
