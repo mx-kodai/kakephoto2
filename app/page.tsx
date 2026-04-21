@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
+import { motion, useInView, useMotionValue, useTransform, type MotionValue } from "framer-motion";
 import Link from "next/link";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
@@ -121,11 +121,11 @@ function StickyMessage({
       className="absolute inset-0 z-10"
       style={{ opacity, y }}
     >
-      <div className="absolute left-0 top-[130px] w-[960px] h-[648px] overflow-hidden">
+      <div className="absolute left-0 top-[280px] w-[960px] h-[648px] overflow-hidden">
         <Image src={img} alt={alt} fill className="object-cover" />
       </div>
       <div
-        className="absolute left-[1110px] top-[260px] w-[534px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]"
+        className="absolute left-[1110px] top-[410px] w-[534px] text-[#710b26] text-[18px] tracking-[7.2px] leading-[50px]"
         style={{ fontFamily: 'Zen Old Mincho' }}
       >
         {lines.map((line, i) => (
@@ -136,20 +136,23 @@ function StickyMessage({
   );
 }
 
-const SECTION_LAYOUT_HEIGHT = 7200;
-const STICKY_LAYOUT_HEIGHT = 900;
+const SECTION_LAYOUT_HEIGHT = 4500;
+const STICKY_LAYOUT_HEIGHT = 1080;
 
 function StickyMessageSection() {
   const ref = useRef<HTMLElement>(null);
-  const rawProgress = useMotionValue(0); // 0..1 raw from scroll
-  // Spring-smoothed for silky crossfades even with chunky mousewheel input
-  const progress = useSpring(rawProgress, { stiffness: 220, damping: 38, mass: 0.4 });
+  const progress = useMotionValue(0); // 0..1 direct from scroll — instant, no spring lag
 
   useEffect(() => {
+    let rafId = 0;
+    let queued = false;
     const compute = () => {
+      queued = false;
       const el = ref.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
+      // Early-exit when section is far from viewport — avoids computing opacity during unrelated scroll
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
       const scale = rect.height / SECTION_LAYOUT_HEIGHT;
       if (scale <= 0) return;
       const visualStickyH = STICKY_LAYOUT_HEIGHT * scale;
@@ -157,16 +160,22 @@ function StickyMessageSection() {
       if (maxVisualScroll <= 0) return;
       const scrolled = -rect.top;
       const clamped = Math.max(0, Math.min(maxVisualScroll, scrolled));
-      rawProgress.set(clamped / maxVisualScroll);
+      progress.set(clamped / maxVisualScroll);
+    };
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      rafId = requestAnimationFrame(compute);
     };
     compute();
-    window.addEventListener("scroll", compute, { passive: true });
-    window.addEventListener("resize", compute);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
-      window.removeEventListener("scroll", compute);
-      window.removeEventListener("resize", compute);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
-  }, [rawProgress]);
+  }, [progress]);
 
   const messages = [
     {
@@ -224,24 +233,23 @@ function StickyMessageSection() {
   ];
 
   return (
-    <section ref={ref} className="relative w-[1920px] bg-white" style={{ height: SECTION_LAYOUT_HEIGHT }}>
+    <section ref={ref} className="relative w-[1920px] bg-white overflow-hidden" style={{ height: SECTION_LAYOUT_HEIGHT }}>
+      {/* 背景テクスチャ — セクション全体にタイル（sticky はみ出し領域も埋める） */}
       <div
-        className="sticky top-0 w-[1920px] overflow-hidden"
+        className="absolute inset-0 opacity-40 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/message-bg.jpg)',
+          backgroundSize: '2730px auto',
+          backgroundPosition: '-702px top',
+          backgroundRepeat: 'repeat-y',
+        }}
+      />
+
+      <div
+        className="sticky top-0 w-[1920px]"
         style={{ height: STICKY_LAYOUT_HEIGHT }}
       >
-        {/* 背景テクスチャ */}
-        <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src="/images/message-bg.jpg"
-            alt=""
-            width={2730}
-            height={4096}
-            className="absolute max-w-none opacity-40"
-            style={{ width: 2730, height: 4096, left: -702, top: -526 }}
-          />
-        </div>
-
-        <h2 className="absolute z-20 left-[99px] top-[60px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
+        <h2 className="absolute z-20 left-[99px] top-[80px] text-[#710b26] text-[40px] tracking-[16px]">Message</h2>
 
         {messages.map((m, i) => (
           <StickyMessage
@@ -267,7 +275,7 @@ function SpPage() {
           <Image src="/images/fv-bg.jpg" alt="KAKEPHOTO" fill className="object-cover" priority />
         </div>
         <div className="absolute top-[20px] left-[16px] z-10">
-          <Image src="/images/logo-horizontal.svg" alt="KAKEPHOTO" width={160} height={18} />
+          <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={56} height={88} />
         </div>
         <div className="absolute top-[140px] left-1/2 -translate-x-1/2 z-10 hidden">
           <Image src="/images/logo-center.svg" alt="KAKEPHOTO" width={150} height={236} />
@@ -279,13 +287,13 @@ function SpPage() {
       </section>
 
       {/* ===== Concept ===== */}
-      <section className="relative w-[375px] bg-[#710b26] text-white py-[60px] pb-[160px] overflow-hidden">
+      <section className="relative w-[375px] bg-[#710b26] text-white pt-[120px] pb-[320px] overflow-hidden">
         {/* 装飾写真1 — 右上 */}
-        <FadeInOnScroll className="absolute top-[40px] right-0 w-[140px] h-[180px] overflow-hidden" delay={0}>
+        <FadeInOnScroll className="absolute top-[100px] right-0 w-[140px] h-[180px] overflow-hidden" delay={0}>
           <Image src="/images/concept-photo1.jpg" alt="" fill className="object-cover" />
         </FadeInOnScroll>
         {/* 装飾写真2 — 左中 */}
-        <FadeInOnScroll className="absolute top-[320px] left-0 w-[120px] h-[160px] overflow-hidden" delay={0.15}>
+        <FadeInOnScroll className="absolute top-[380px] left-0 w-[120px] h-[160px] overflow-hidden" delay={0.15}>
           <Image src="/images/concept-photo2.jpg" alt="" fill className="object-cover" />
         </FadeInOnScroll>
 
@@ -327,12 +335,12 @@ function SpPage() {
 
         </div>
 
-        {/* 装飾写真3 — 左下 */}
-        <FadeInOnScroll className="absolute bottom-[40px] left-0 w-[130px] h-[160px] overflow-hidden" delay={0}>
+        {/* 装飾写真3 — 左下（少し埋め込み） */}
+        <FadeInOnScroll className="absolute bottom-[140px] left-[-30px] w-[130px] h-[160px] overflow-hidden" delay={0}>
           <Image src="/images/concept-photo3.jpg" alt="" fill className="object-cover" />
         </FadeInOnScroll>
-        {/* 装飾写真4 — 右下 */}
-        <FadeInOnScroll className="absolute bottom-[20px] right-[20px] w-[150px] h-[170px] overflow-hidden" delay={0.15}>
+        {/* 装飾写真4 — 右下（少し下げる） */}
+        <FadeInOnScroll className="absolute bottom-[40px] right-[20px] w-[150px] h-[170px] overflow-hidden" delay={0.15}>
           <Image src="/images/concept-photo.jpg" alt="" fill className="object-cover" />
         </FadeInOnScroll>
       </section>
@@ -421,7 +429,7 @@ function SpPage() {
       <section className="relative w-[375px] bg-[#710b26] text-white px-[20px] py-[50px]">
         <h2 className="text-[24px] tracking-[8px] mb-[40px] text-center">Order</h2>
         <p className="text-[12px] tracking-[1.5px] leading-[28px] text-center mb-[30px]">
-          掛け軸は、オーダーにてお作りしています。<br />写真の内容だけでなく、裂地の色や質感、全体の配色バランスまで。<br />空間や飾る場所を想像しながら、<br />一緒に仕立てていく時間も大切にしています。
+          掛け軸は、オーダーにてお作りしています。<br />写真の内容だけでなく、裂地の色や質感、<br />全体の配色バランスまで。<br />空間や飾る場所を想像しながら、<br />一緒に仕立てていく時間も大切にしています。
         </p>
 
         {/* 特注オーダーメイド */}
@@ -438,7 +446,7 @@ function SpPage() {
               <p>縦：110-130cm / 横：30cm~</p>
             </div>
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-[16px] tracking-[2px] text-black">00,000円</span>
+              <span className="text-[16px] tracking-[2px] text-black">88,000円～</span>
               <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
             </div>
             <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
@@ -732,7 +740,7 @@ export default function Home() {
               <p>横：30cm~</p>
             </div>
             {/* 価格 */}
-            <span className="absolute left-[1520px] top-[157px] text-[18px] tracking-[7.2px] text-black leading-[50px]">00,000円</span>
+            <span className="absolute left-[1520px] top-[157px] text-[18px] tracking-[7.2px] text-black leading-[50px]">88,000円～</span>
             <span className="absolute left-[1532px] top-[182px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/送料込)</span>
             {/* 説明テキスト */}
             <p className="absolute left-[802px] top-[260px] w-[860px] text-[16px] tracking-[7.2px] text-black leading-[28px]">
