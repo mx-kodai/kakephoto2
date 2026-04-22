@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform, easeInOut, type MotionValue } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
@@ -75,227 +75,112 @@ function SpMessageBlock({
 const vwPx = (n: number) => `calc(100vw * ${n} / 1920)`;
 const vhPx = (n: number) => `calc(100vh * ${n} / 1080)`;
 
-function StickyMessage({
-  progress,
-  range,
-  img,
-  alt,
-  lines,
+const MESSAGES = [
+  {
+    img: "/images/message-photo1.jpg",
+    alt: "掛け軸の裂地",
+    lines: [
+      "「伝統を継ぎ、未来を綴る」",
+      "文化財修復という、歴史を守る現場で",
+      "磨かれた確かな技術。",
+      "機械では決して生み出せない、",
+      "一点一点、呼吸を合わせるような",
+      "完全ハンドメイド。",
+      "手仕事ならではの柔らかな風合いに、",
+      "職人の誇りを込めてお届けします。",
+    ],
+  },
+  {
+    img: "/images/message-photo2.jpg",
+    alt: "掛け軸のある空間",
+    lines: [
+      "「敷居をまたぎ、日常に馴染む」",
+      "「掛軸は少し格式が高い」というこれまでの",
+      "常識を、私たちは軽やかにひっくり返します。",
+      "現代のリビングに、",
+      "驚くほど自然にフィットする佇まい。",
+      "もっと扱いやすく、もっと身近に。",
+      "あなたの何気ない日常の風景に、",
+      "そっと彩りを添えます。",
+    ],
+  },
+  {
+    img: "/images/message-photo3.jpg",
+    alt: "掛け軸と家族の思い出",
+    lines: [
+      "「記憶を飾り、心を贈る」",
+      "家族の笑顔や、心に留めておきたい",
+      "大切な瞬間。",
+      "デジタルの中にある思い出を「形」にして、",
+      "世界にひとつだけの掛軸へ。",
+      "お世話になった方への贈り物や、",
+      "特別な記念日にも。",
+      "言葉では伝えきれない想いを、",
+      "確かな形に託して。",
+    ],
+  },
+];
+
+// Right-column text block. Wrapper height controls how long this message
+// "holds" in view: a 200vh wrapper with a 100vh sticky inner gives 100vh of
+// scroll during which the text stays pinned at viewport center — the "read
+// pause" the user wants on the first and last messages.
+function MessageTextBlock({
+  msg,
+  index,
+  onActive,
+  holdVh,
 }: {
-  progress: MotionValue<number>;
-  range: [number, number, number, number];
-  img: string;
-  alt: string;
-  lines: string[];
+  msg: (typeof MESSAGES)[number];
+  index: number;
+  onActive: (i: number) => void;
+  holdVh: number;
 }) {
-  const opacity = useTransform(progress, range, [0, 1, 1, 0], { ease: easeInOut });
-  const y = useTransform(progress, range, [40, 0, 0, -40], { ease: easeInOut });
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(stickyRef, { margin: "-40% 0px -40% 0px" });
+
+  useEffect(() => {
+    if (inView) onActive(index);
+  }, [inView, index, onActive]);
+
   return (
-    <motion.div
-      className="absolute inset-0 z-10"
-      style={{ opacity, y }}
-    >
+    <div className="relative w-full" style={{ height: `${holdVh}vh` }}>
       <div
-        className="absolute overflow-hidden"
-        style={{ left: 0, top: vhPx(220), width: vwPx(960), height: vwPx(648) }}
-      >
-        <Image src={img} alt={alt} fill className="object-cover" />
-      </div>
-      <div
-        className="absolute"
+        ref={stickyRef}
+        className="sticky top-0 w-full flex items-center"
         style={{
-          left: vwPx(1110),
-          top: vhPx(350),
-          width: vwPx(534),
-          color: '#710b26',
+          height: "100vh",
+          color: "#710b26",
           fontSize: vwPx(18),
           letterSpacing: vwPx(7.2),
           lineHeight: vwPx(50),
-          fontFamily: 'Zen Old Mincho',
+          fontFamily: "Zen Old Mincho",
         }}
       >
-        {lines.map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
+        <div>
+          {msg.lines.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
+// Left column (image + h2 + bg) stays pinned for the whole section. Right
+// column scrolls naturally: as each text block passes viewport center,
+// activeIndex updates and the left image crossfades to the matching photo.
+// First and last messages get extra hold (200vh) so the user has time to read.
 function StickyMessageSection() {
-  const ref = useRef<HTMLElement>(null);
-  const rawProgress = useMotionValue(0); // 0..1 direct from scroll
-  // Smooth out the discrete wheel-delta jumps (Windows wheel = 100px steps)
-  // into a continuous motion value — this is what actually drives the fade.
-  const progress = useSpring(rawProgress, { stiffness: 400, damping: 40, mass: 0.4 });
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    let rafId = 0;
-    let queued = false;
-    const compute = () => {
-      queued = false;
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      // Early-exit when section is far from viewport — avoids computing opacity during unrelated scroll
-      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-      const maxVisualScroll = rect.height - window.innerHeight;
-      if (maxVisualScroll <= 0) return;
-      const scrolled = -rect.top;
-      const clamped = Math.max(0, Math.min(maxVisualScroll, scrolled));
-      rawProgress.set(clamped / maxVisualScroll);
-    };
-    const onScroll = () => {
-      if (queued) return;
-      queued = true;
-      rafId = requestAnimationFrame(compute);
-    };
-    compute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [rawProgress]);
-
-  // One wheel tick = advance to next message. Slow transit (~900ms) with
-  // easeInOut. During the transit and a short cooldown after, additional
-  // wheel events are dropped so inertia cannot auto-advance. At the last
-  // stage, a further wheel-down is released to native scroll so the user
-  // leaves the section into Order (msg3 stays fully visible because its
-  // range holds opacity=1 up to progress=1.0).
-  useEffect(() => {
-    const stages = [0.10, 0.50, 0.88];
-    let animating = false;
-    let animId = 0;
-    let cooldownUntil = 0;
-
-    const animateTo = (fromY: number, toY: number) => {
-      const duration = 900;
-      const t0 = performance.now();
-      animating = true;
-      cancelAnimationFrame(animId);
-      const tick = () => {
-        const t = Math.min(1, (performance.now() - t0) / duration);
-        const eased = 0.5 - 0.5 * Math.cos(Math.PI * t); // cosine easeInOut
-        window.scrollTo(0, fromY + (toY - fromY) * eased);
-        if (t >= 1) {
-          animating = false;
-          cooldownUntil = performance.now() + 300; // swallow trackpad inertia tail
-          return;
-        }
-        animId = requestAnimationFrame(tick);
-      };
-      animId = requestAnimationFrame(tick);
-    };
-
-    const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) return;
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const pinned = rect.top <= 0 && rect.bottom > window.innerHeight;
-      if (!pinned) return;
-      if (animating || performance.now() < cooldownUntil) {
-        e.preventDefault();
-        return;
-      }
-      const maxVisualScroll = rect.height - window.innerHeight;
-      if (maxVisualScroll <= 0) return;
-      const currentP = (-rect.top) / maxVisualScroll;
-      const dir = e.deltaY > 0 ? 1 : -1;
-
-      let targetP = -1;
-      if (dir > 0) {
-        for (const s of stages) {
-          if (s > currentP + 0.02) { targetP = s; break; }
-        }
-      } else {
-        for (let i = stages.length - 1; i >= 0; i--) {
-          if (stages[i] < currentP - 0.02) { targetP = stages[i]; break; }
-        }
-      }
-      if (targetP < 0) return; // at edge stage — release to native scroll
-
-      e.preventDefault();
-      const startY = window.scrollY;
-      const targetY = startY + (targetP - currentP) * maxVisualScroll;
-      animateTo(startY, targetY);
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("wheel", onWheel);
-    };
-  }, []);
-
-
-  const messages = [
-    {
-      img: "/images/message-photo1.jpg",
-      alt: "掛け軸の裂地",
-      lines: [
-        "「伝統を継ぎ、未来を綴る」",
-        "文化財修復という、歴史を守る現場で",
-        "磨かれた確かな技術。",
-        "機械では決して生み出せない、",
-        "一点一点、呼吸を合わせるような",
-        "完全ハンドメイド。",
-        "手仕事ならではの柔らかな風合いに、",
-        "職人の誇りを込めてお届けします。",
-      ],
-    },
-    {
-      img: "/images/message-photo2.jpg",
-      alt: "掛け軸のある空間",
-      lines: [
-        "「敷居をまたぎ、日常に馴染む」",
-        "「掛軸は少し格式が高い」というこれまでの",
-        "常識を、私たちは軽やかにひっくり返します。",
-        "現代のリビングに、",
-        "驚くほど自然にフィットする佇まい。",
-        "もっと扱いやすく、もっと身近に。",
-        "あなたの何気ない日常の風景に、",
-        "そっと彩りを添えます。",
-      ],
-    },
-    {
-      img: "/images/message-photo3.jpg",
-      alt: "掛け軸と家族の思い出",
-      lines: [
-        "「記憶を飾り、心を贈る」",
-        "家族の笑顔や、心に留めておきたい",
-        "大切な瞬間。",
-        "デジタルの中にある思い出を「形」にして、",
-        "世界にひとつだけの掛軸へ。",
-        "お世話になった方への贈り物や、",
-        "特別な記念日にも。",
-        "言葉では伝えきれない想いを、",
-        "確かな形に託して。",
-      ],
-    },
-  ];
-
-  // [a, b, c, d]: opacity 0→1 between a..b (fade-in), hold 1 between b..c, 1→0 between c..d (fade-out).
-  // msg1: b=0 so it is fully visible the moment the section pins (avoids a "missed msg1" on fast scroll).
-  // msg3: c=d=1 so it stays fully visible until the section unpins (never half-faded at the bottom).
-  // Overlapping fade bands between msgs create a gentle crossfade.
-  const ranges: Array<[number, number, number, number]> = [
-    [-0.10, 0.00, 0.25, 0.38],
-    [0.28, 0.42, 0.58, 0.72],
-    [0.62, 0.76, 1.00, 1.00],
-  ];
+  const holds = [200, 100, 200]; // per-message wrapper heights (vh)
+  const totalVh = holds.reduce((a, b) => a + b, 0);
 
   return (
-    <section ref={ref} className="relative w-full bg-white" style={{ height: '600vh' }}>
-      <div
-        className="sticky top-0 w-full overflow-hidden"
-        style={{ height: '100vh' }}
-      >
-        {/* 背景テクスチャ */}
+    <section className="relative w-full bg-white" style={{ height: `${totalVh}vh` }}>
+      {/* Pinned left side: bg texture + Message heading + image stack */}
+      <div className="sticky top-0 w-full overflow-hidden" style={{ height: "100vh" }}>
         <div className="absolute inset-0 overflow-hidden">
           <Image
             src="/images/message-bg.jpg"
@@ -310,7 +195,7 @@ function StickyMessageSection() {
           style={{
             left: vwPx(99),
             top: vhPx(60),
-            color: '#710b26',
+            color: "#710b26",
             fontSize: vwPx(40),
             letterSpacing: vwPx(16),
           }}
@@ -318,14 +203,42 @@ function StickyMessageSection() {
           Message
         </h2>
 
-        {messages.map((m, i) => (
-          <StickyMessage
+        <div
+          className="absolute overflow-hidden"
+          style={{ left: 0, top: vhPx(220), width: vwPx(960), height: vwPx(648) }}
+        >
+          {MESSAGES.map((m, i) => (
+            <motion.div
+              key={i}
+              className="absolute inset-0"
+              initial={false}
+              animate={{ opacity: activeIndex === i ? 1 : 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Image
+                src={m.img}
+                alt={m.alt}
+                fill
+                className="object-cover"
+                priority={i === 0}
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right-column text: absolute overlay spanning full section height */}
+      <div
+        className="absolute top-0 z-20"
+        style={{ left: vwPx(1110), width: vwPx(534), height: "100%" }}
+      >
+        {MESSAGES.map((m, i) => (
+          <MessageTextBlock
             key={i}
-            progress={progress}
-            range={ranges[i]}
-            img={m.img}
-            alt={m.alt}
-            lines={m.lines}
+            msg={m}
+            index={i}
+            onActive={setActiveIndex}
+            holdVh={holds[i]}
           />
         ))}
       </div>
