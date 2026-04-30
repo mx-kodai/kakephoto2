@@ -284,12 +284,12 @@ function SpBackToTop() {
 function SpPage() {
   // Chrome (Android & iOS CriOS) keeps a bottom URL bar that overlaps the FV
   // tagline. Safari hides it on scroll, so it can sit lower over the kakejiku.
-  const [taglineBottom, setTaglineBottom] = useState(28);
+  const [isChrome, setIsChrome] = useState(false);
   useEffect(() => {
     const ua = navigator.userAgent;
-    const isChrome = /CriOS|Chrome/i.test(ua) && !/Edg|OPR|EdgiOS/i.test(ua);
-    setTaglineBottom(isChrome ? 64 : 28);
+    setIsChrome(/CriOS|Chrome/i.test(ua) && !/Edg|OPR|EdgiOS/i.test(ua));
   }, []);
+  const taglineBottom = isChrome ? 64 : 28;
 
   return (
     <main className="w-[375px] overflow-hidden" style={{ fontFamily: 'Zen Old Mincho, serif' }}>
@@ -297,7 +297,14 @@ function SpPage() {
       {/* ===== FV ===== */}
       <section data-sp-theme="dark" className="relative w-[375px] h-[680px] overflow-hidden">
         <div className="absolute inset-0">
-          <Image src="/images/sp-fv-bg.jpg" alt="KAKEPHOTO" fill className="object-cover scale-[1.25] object-center" priority />
+          <Image
+            src="/images/sp-fv-bg.jpg"
+            alt="KAKEPHOTO"
+            fill
+            className="object-cover scale-[1.25]"
+            style={{ objectPosition: isChrome ? "center calc(50% - 6px)" : "center" }}
+            priority
+          />
         </div>
         <div className="absolute top-[20px] left-[16px] z-10">
           <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={72} height={112} />
