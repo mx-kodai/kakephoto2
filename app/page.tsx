@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
+import { LangSwitcher } from "./_components/LangSwitcher";
 
 function FadeInOnScroll({ children, className, delay = 0 }: { children?: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -309,6 +310,9 @@ function SpPage() {
         <div className="absolute top-[20px] left-[16px] z-10">
           <Image src="/images/footer-logo.svg" alt="KAKEPHOTO" width={72} height={112} />
         </div>
+        <div className="absolute top-[2px] right-[6px] z-20">
+          <LangSwitcher lang="ja" variant="sp" />
+        </div>
         <div className="absolute top-[140px] left-1/2 -translate-x-1/2 z-10 hidden">
           <Image src="/images/logo-center.svg" alt="KAKEPHOTO" width={150} height={236} />
         </div>
@@ -479,7 +483,7 @@ function SpPage() {
             </div>
             <div className="flex items-baseline gap-2 mb-3">
               <span className="text-[16px] tracking-[2px] text-black">88,000円～</span>
-              <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
+              <span className="text-[11px] tracking-[1px] text-black">(税込/国内送料込)</span>
             </div>
             <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
               写真の印刷サイズは、ハガキサイズからA3サイズまで自由にお選びいただけます。使用する裂地（きれじ）や完成形に制限はなく、自由なカスタマイズが可能です。
@@ -502,7 +506,7 @@ function SpPage() {
             </div>
             <div className="flex items-baseline gap-2 mb-3">
               <span className="text-[16px] tracking-[2px] text-black">46,000円</span>
-              <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
+              <span className="text-[11px] tracking-[1px] text-black">(税込/国内送料込)</span>
             </div>
             <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
               お写真をA4サイズに拡大印刷して仕上げます。あらかじめ厳選された裂地（きれじ）や形状のラインナップから、お好みの組み合わせをお選びいただけます。
@@ -525,7 +529,7 @@ function SpPage() {
             </div>
             <div className="flex items-baseline gap-2 mb-3">
               <span className="text-[16px] tracking-[2px] text-black">77,000円</span>
-              <span className="text-[11px] tracking-[1px] text-black">(税込/送料込)</span>
+              <span className="text-[11px] tracking-[1px] text-black">(税込/国内送料込)</span>
             </div>
             <p className="text-[12px] tracking-[1.5px] text-black leading-[22px]">
               お写真を、存在感あふれるA3サイズに拡大印刷いたします。ダイナミックな大きさでありながら、細部まで鮮明に再現されます。
@@ -600,7 +604,7 @@ function SpPage() {
               <span className="text-[12px] tracking-[1px]">LINE</span>
             </a>
           </div>
-          <p className="text-[10px] tracking-[0.8px] mb-[8px]"><a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">キャンセルポリシー</a></p>
+          <p className="text-[10px] tracking-[0.8px] mb-[8px]"><a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">ご利用ガイド</a></p>
           <p className="text-[9px] tracking-[0.8px]">©︎KAKEPHOTO All Rights Reserved.</p>
         </footer>
       </section>
@@ -643,6 +647,10 @@ export default function Home() {
               width={269}
               height={30}
             />
+          </div>
+          {/* JP/EN switcher — top right */}
+          <div className="absolute top-[28px] right-[40px] z-20">
+            <LangSwitcher lang="ja" variant="pc" />
           </div>
           {/* センターロゴ — Figma: x=820 y=312 w=280 h=441 */}
           <div className="absolute top-[312px] left-[820px] z-10">
@@ -792,7 +800,7 @@ export default function Home() {
             </div>
             {/* 価格 */}
             <span className="absolute left-[1520px] top-[157px] text-[18px] tracking-[7.2px] text-black leading-[50px]">88,000円～</span>
-            <span className="absolute left-[1532px] top-[182px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/送料込)</span>
+            <span className="absolute left-[1532px] top-[182px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/国内送料込)</span>
             {/* 説明テキスト */}
             <p className="absolute left-[802px] top-[260px] w-[860px] text-[16px] tracking-[7.2px] text-black leading-[28px]">
               写真の印刷サイズは、ハガキサイズからA3サイズまで自由にお選びいただけます。<br />使用する裂地（きれじ）や完成形に制限はなく、自由なカスタマイズが可能です。ご自身のこだわりを妥協なく形にしたい方には、こちらのコースをおすすめいたします。
@@ -816,7 +824,7 @@ export default function Home() {
               <p>横23cm~</p>
             </div>
             <span className="absolute left-[327px] top-[411px] text-[18px] tracking-[7.2px] text-black leading-[50px]">46,000円</span>
-            <span className="absolute left-[327px] top-[443px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/送料込)</span>
+            <span className="absolute left-[327px] top-[443px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/国内送料込)</span>
 
 
             {/* 極コース */}
@@ -833,7 +841,7 @@ export default function Home() {
               <p>横：30cm~</p>
             </div>
             <span className="absolute left-[1176px] top-[411px] text-[18px] tracking-[7.2px] text-black leading-[50px]">77,000円</span>
-            <span className="absolute left-[1181px] top-[436px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/送料込)</span>
+            <span className="absolute left-[1181px] top-[436px] text-[14px] tracking-[2.8px] text-black leading-[50px]">(税込/国内送料込)</span>
           </div>
 
           {/* オーダーの流れ — Figma: x=300 y=1804 w=1320 */}
@@ -940,7 +948,7 @@ export default function Home() {
 
             {/* プライバシーポリシー */}
             <p className="absolute right-0 top-[161px] text-[14px] tracking-[1.4px]">
-              <a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">キャンセルポリシー</a>
+              <a href="/privacy-policy">プライバシーポリシー</a> | <a href="/cancel-policy">ご利用ガイド</a>
             </p>
           </footer>
         </section>

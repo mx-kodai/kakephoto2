@@ -42,6 +42,25 @@ function PolicyContent() {
     <>
       <FadeInOnScroll delay={0.05}>
         <div className="mb-[50px] md:mb-[80px]">
+          <h3 className="text-[14px] md:text-[22px] tracking-[2px] md:tracking-[4px] mb-[16px] md:mb-[24px] font-medium">配送について</h3>
+          <ul className="space-y-[10px] md:space-y-[16px]">
+            {[
+              "国内（日本）：送料無料。商品代金に含まれます。",
+              "海外：配送可能ですが、送料は配送先や配送方法により変動するため、別途お見積もりさせていただきます。お問い合わせフォームよりご連絡ください。",
+              "関税・輸入税：海外配送の場合、現地での関税・輸入税はお客様（受取人）のご負担となります。",
+              "配送業者：国内はヤマト運輸、海外は EMS や DHL 等。",
+              "発送目安：完全受注生産のため、ご注文確定（デザイン確定）から約1〜2ヶ月後の発送となります。",
+            ].map((item, i) => (
+              <li key={i} className="text-[12px] md:text-[16px] leading-[22px] md:leading-[34px] tracking-[1px] md:tracking-[2px] text-black pl-[16px] md:pl-[24px] relative before:content-[''] before:absolute before:left-0 before:top-[10px] before:w-[6px] before:h-[6px] before:bg-[#710b26] before:rounded-full before:md:top-[14px]">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </FadeInOnScroll>
+
+      <FadeInOnScroll delay={0.1}>
+        <div className="mb-[50px] md:mb-[80px]">
           <h3 className="text-[14px] md:text-[22px] tracking-[2px] md:tracking-[4px] mb-[16px] md:mb-[24px] font-medium">キャンセルについて</h3>
           <p className="text-[12px] md:text-[16px] leading-[24px] md:leading-[36px] tracking-[1px] md:tracking-[2px] text-black mb-[12px] md:mb-[20px]">
             当店の「かけフォト」は、お客様のお写真に合わせて一点ずつ制作する完全受注生産（オーダーメイド）商品です。そのため、ご注文確定後のキャンセルについては、以下の通り定めます。
@@ -57,7 +76,7 @@ function PolicyContent() {
         </div>
       </FadeInOnScroll>
 
-      <FadeInOnScroll delay={0.1}>
+      <FadeInOnScroll delay={0.15}>
         <div className="mb-[50px] md:mb-[80px]">
           <h3 className="text-[14px] md:text-[22px] tracking-[2px] md:tracking-[4px] mb-[16px] md:mb-[24px] font-medium">返品・交換について</h3>
           <p className="text-[12px] md:text-[16px] leading-[24px] md:leading-[36px] tracking-[1px] md:tracking-[2px] text-black mb-[12px] md:mb-[20px]">
@@ -78,7 +97,7 @@ function PolicyContent() {
         </div>
       </FadeInOnScroll>
 
-      <FadeInOnScroll delay={0.15}>
+      <FadeInOnScroll delay={0.2}>
         <div className="mb-[50px] md:mb-[80px]">
           <h3 className="text-[14px] md:text-[22px] tracking-[2px] md:tracking-[4px] mb-[16px] md:mb-[24px] font-medium">※色味・仕上がりに関するご注意（免責事項）</h3>
           <p className="text-[12px] md:text-[16px] leading-[24px] md:leading-[36px] tracking-[1px] md:tracking-[2px] text-black mb-[12px] md:mb-[20px]">
@@ -97,7 +116,7 @@ function PolicyContent() {
         </div>
       </FadeInOnScroll>
 
-      <FadeInOnScroll delay={0.2}>
+      <FadeInOnScroll delay={0.25}>
         <div className="mb-[50px] md:mb-[80px]">
           <h2 className="text-[18px] md:text-[32px] tracking-[4px] md:tracking-[10px] mb-[30px] md:mb-[50px] text-center font-normal">特定商取引法に基づく表記</h2>
           <div className="border-t border-[#710b26]/20">
@@ -106,9 +125,13 @@ function PolicyContent() {
               ["運営統括責任者", "岩崎 正克"],
               ["所在地", "〒932-0203 富山県南砺市岩屋355"],
               ["連絡先", "電話：0763-82-3529\nMail：iwasaki.seishodo@gmail.com"],
-              ["商品代金以外の必要料金", "消費税、送料、振込手数料（銀行振込の場合）"],
+              ["販売価格", "各コース詳細ページに表示（46,000円〜）"],
+              ["商品代金以外の必要料金", "消費税、振込手数料（銀行振込の場合）。海外配送の場合は別途送料および現地での関税・輸入税。"],
               ["引き渡し時期", "完全受注生産のため、ご注文（デザイン確定）から約1〜2ヶ月後に発送いたします。\n※混雑状況や天候により遅れる場合がございます。"],
-              ["お支払い方法", "クレジットカード決済 / 銀行振込"],
+              ["お支払い方法", "クレジットカード決済 / 銀行振込 / PayPal"],
+              ["お支払い期限", "クレジットカード・PayPal：ご注文時に決済。\n銀行振込：ご注文より7日以内に当店指定口座へお振込みください。"],
+              ["返品期限", "商品到着後7日以内（不良品・誤配送の場合のみ）"],
+              ["返品送料", "不良品・誤配送の場合：当店負担。\nお客様都合の場合：返品・交換は承っておりません。"],
             ].map(([label, value], i) => (
               <div key={i} className="flex border-b border-[#710b26]/20 py-[14px] md:py-[24px]">
                 <div className="w-[120px] md:w-[300px] shrink-0 text-[11px] md:text-[16px] tracking-[1px] md:tracking-[2px] font-medium">{label}</div>
@@ -130,7 +153,7 @@ function SpPage() {
       </div>
       <div className="px-[20px] pt-[40px]">
         <FadeInOnScroll>
-          <h1 className="text-[22px] tracking-[5px] mb-[20px] text-center leading-[36px]">キャンセル・返品・交換について</h1>
+          <h1 className="text-[22px] tracking-[5px] mb-[20px] text-center leading-[36px]">ご利用ガイド</h1>
           <div className="h-[1px] bg-[#710b26]/20 mb-[50px]" />
         </FadeInOnScroll>
         <PolicyContent />
@@ -154,7 +177,7 @@ function PcPage() {
         </div>
         <div className="max-w-[1200px] mx-auto pt-[80px] pb-[160px]">
           <FadeInOnScroll>
-            <h1 className="text-[48px] tracking-[16px] mb-[30px] text-center font-normal">キャンセル・返品・交換について</h1>
+            <h1 className="text-[48px] tracking-[16px] mb-[30px] text-center font-normal">ご利用ガイド</h1>
             <div className="h-[1px] bg-[#710b26]/20 mx-auto w-[200px] mb-[100px]" />
           </FadeInOnScroll>
           <div className="px-[100px]">
