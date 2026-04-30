@@ -302,7 +302,7 @@ function SpPage() {
             alt="KAKEPHOTO"
             fill
             className="object-cover scale-[1.25]"
-            style={{ objectPosition: isChrome ? "center calc(50% - 6px)" : "center" }}
+            style={{ objectPosition: isChrome ? "center calc(50% - 9px)" : "center" }}
             priority
           />
         </div>
