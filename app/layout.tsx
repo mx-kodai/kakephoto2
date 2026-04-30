@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -93,6 +92,12 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KRCSGD4ZWP" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-KRCSGD4ZWP');`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -136,7 +141,6 @@ export default function RootLayout({
         />
       </head>
       <body>{children}</body>
-      <GoogleAnalytics gaId="G-KRCSGD4ZWP" />
     </html>
   );
 }
