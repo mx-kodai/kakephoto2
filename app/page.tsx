@@ -538,8 +538,8 @@ function SpPage() {
         <div className="mb-[60px]">
           {[
             { step: "Step1", text: "まずは公式LINEもしくはお問合せからご連絡ください。" },
-            { step: "Step2", text: "詳細をお伺いするため、後日、職人よりご連絡いたします。" },
-            { step: "Step3", text: "写真からおすすめの裂地を選定させていただきます。" },
+            { step: "Step2", text: "詳細をお伺いするため、後日、職人よりご連絡します。" },
+            { step: "Step3", text: "写真からおすすめの裂地を選定します。" },
             { step: "Step4", text: "裂地を確認後、制作に移らせていただきます。" },
           ].map((item, i) => (
             <div key={i} className="border-b border-white/30 py-[12px]">
@@ -845,7 +845,7 @@ export default function Home() {
               {[
                 { step: "Step1", text: "まずは公式LINEもしくはお問合せからご連絡ください。" },
                 { step: "Step2", text: "詳細をお伺いするため、後日、職人よりご連絡いたします。" },
-                { step: "Step3", text: "写真からおすすめの裂地を選定させていただきます。この時点でご希望の色味などがございましたらお知らせください。" },
+                { step: "Step3", text: "写真からおすすめの裂地を選定します。この時点でご希望の色味などがございましたらお知らせください。" },
                 { step: "Step4", text: "実際に使用する裂地を確認していただいたのち、制作に移らせていただきます。" },
               ].map((item, i) => (
                 <div key={i} className="border-b border-white/30 py-[20px] flex gap-[30px] items-baseline">
