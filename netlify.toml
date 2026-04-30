@@ -1,0 +1,15 @@
+# Netlify build settings for KAKEPHOTO (Next.js App Router).
+# Netlify auto-detects Next.js via @netlify/plugin-nextjs and OpenNext.
+# Keeping these explicit so the repo is portable across owners.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# When deploying to Netlify, set these in the dashboard
+# (Site settings > Environment variables) — do NOT commit them:
+#   NEXT_PUBLIC_SITE_URL = "https://kakephoto.com"
+#   NEXT_PUBLIC_GA_ID    = "G-XXXXXXXXXX"  (if Google Analytics is wired up)
