@@ -3,6 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kakephoto.com"),
+  verification: {
+    google: "bYVCwIVNKlH6m1qyjD3IcbRZIWFOEgqpZ2LrDwnNHPM",
+  },
   title:
     "KAKEPHOTO（かけフォト）| 写真から作るオーダーメイド掛け軸 — 結婚式・ペット・家族写真の贈り物に",
   description:
