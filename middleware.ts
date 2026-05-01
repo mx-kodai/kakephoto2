@@ -45,7 +45,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on all paths except Next internals and static assets.
-    "/((?!_next|api|favicon\\.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp|avif|gif|woff|woff2|ttf|otf|map)$).*)",
+    // Run on all paths except Next internals, static assets, and ACME challenge.
+    "/((?!_next|api|favicon\\.ico|\\.well-known|.*\\.(?:png|jpg|jpeg|svg|ico|webp|avif|gif|woff|woff2|ttf|otf|map)$).*)",
   ],
 };
