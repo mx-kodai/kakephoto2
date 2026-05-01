@@ -6,6 +6,11 @@
   command = "npm run build"
   publish = ".next"
 
+[[headers]]
+  for = "/.well-known/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
 [build.environment]
   NODE_VERSION = "20"
 
