@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Zen_Old_Mincho } from "next/font/google";
 import "./globals.css";
+
+const zenOldMincho = Zen_Old_Mincho({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mincho",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kakephoto.com"),
@@ -98,12 +106,6 @@ export default function RootLayout({
             __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-KRCSGD4ZWP');`,
           }}
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -140,7 +142,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      <body className={zenOldMincho.variable}>
         <script dangerouslySetInnerHTML={{__html: `(function(){function uz(){var w=window.innerWidth;document.documentElement.style.setProperty('--vp-zoom-pc',w/1920);document.documentElement.style.setProperty('--vp-zoom-sp',w/375);}uz();window.addEventListener('resize',uz);})();`}} />
         {children}
       </body>
