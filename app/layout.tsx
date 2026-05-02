@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Zen_Old_Mincho } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const zenOldMincho = Zen_Old_Mincho({
@@ -98,14 +99,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-KRCSGD4ZWP" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-KRCSGD4ZWP');`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -143,8 +138,17 @@ export default function RootLayout({
         />
       </head>
       <body className={zenOldMincho.variable}>
+        {/* ビューポートズーム: 描画前に CSS 変数を設定してちらつきを防ぐ */}
         <script dangerouslySetInnerHTML={{__html: `(function(){function uz(){var w=window.innerWidth;document.documentElement.style.setProperty('--vp-zoom-pc',w/1920);document.documentElement.style.setProperty('--vp-zoom-sp',w/375);}uz();window.addEventListener('resize',uz);})();`}} />
         {children}
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KRCSGD4ZWP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-KRCSGD4ZWP');`}
+        </Script>
       </body>
     </html>
   );
