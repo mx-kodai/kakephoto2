@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# original image backups (large files, not needed in repo)
+/public/images_backup_original/
+
 image.png
 image copy.png
 next-env.d copy.ts

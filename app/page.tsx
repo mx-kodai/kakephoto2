@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import Image from "@/components/VImage";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
